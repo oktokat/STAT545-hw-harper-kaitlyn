@@ -26,6 +26,7 @@ head(gapminder)
 
 ```
 
+<a href="#top">Back to top</a>
 
 ## "Smell test" the data
 **Q1: Is it a data.frame, a matrix, a vector, a list?**
@@ -61,6 +62,8 @@ One way you could get these dimensions (and a bunch of other info about the data
 
 **Q6: What flavor is each variable?**  
 The `r names(gapminder)[1]` and `r names(gapminder)[2]` variables are **`r paste(class(gapminder$country), "s", sep = "")`**; the `r names(gapminder)[3]` and `r names(gapminder)[5]` variables are **`r paste(class(gapminder$year), "s", sep = "")`**; the `r names(gapminder)[4]` and `r names(gapminder)[6]` variables are **`r class(gapminder$lifeExp)`**.
+
+<a href="#top">Back to top</a>
 
 ## Explore individual variables  
 **Pick at least one categorical variable and at least one quantitative variable to explore.**  
@@ -100,6 +103,8 @@ ggplot(gapminder, aes(country, lifeExp)) +
 ```
 
 Looks like the distribution of life expectancies varies a LOT between countries and also within the same country! Check out the plots below to get a better feel for the data! 
+
+<a href="#top">Back to top</a>
 
 ## Explore various plot types  
 Here are a few different plots using all the data (no filtering/grouping yet)
@@ -170,6 +175,8 @@ ggplot(gapminder, aes(x=continent, y=gdpPercap)) +
 
 Looks like the gdp per capita increases over the years and also becomes much more variable, especially in Asia and Europe. Interesting!
 
+<a href="#top">Back to top</a>
+
 ## Use filter, select, and pipes! 
 
 ```{r gap_small, echo=TRUE}
@@ -209,6 +216,7 @@ asia = gapminder %>%
 ggplot(asia, aes(gdpPercap, lifeExp)) +
   geom_point(alpha=3/4, size=3, aes(color=country)) +
   facet_wrap(~ gdpGroup) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   ggtitle("Life expectancy of Asian countries in 2007, grouped by GDP per capita")
 
 rm(asia)
@@ -219,46 +227,103 @@ Let's explore some common factors in countries that lie below the life expectanc
 
 ```{r lowLE, echo=TRUE}
 
+# Create a new variable mutate
 gap_mean = gapminder %>%
   mutate(LEgroup = ifelse(test = (gdpPercap < mean(gdpPercap)), yes = "low", no = "high")) %>% 
   filter(year == 2007) %>% 
   select(-year)
 
+head(gap_mean) # Countries now are classified as having "high" or "low" life expectancy
+
+# histogram of GDP
 gap_mean %>% 
   ggplot(aes(gdpPercap)) +
   geom_density() + 
-  facet_wrap(~ LEgroup)
+  facet_wrap(~ LEgroup) +
+  ggtitle("Distribution of countries by GDP per capita in 2007")
 
+# histogram of population
 gap_mean %>% 
   ggplot(aes(pop)) +
   geom_density() +
-  facet_wrap(~ LEgroup)
+  facet_wrap(~ LEgroup) +
+  ggtitle("Distribution of countries by population in 2007")
 
-gap_mean_arranged = gap_mean %>% arrange(LEgroup, pop)
+```
 
+Hmmm... what are those outliers in the "low life expectancy" group? Let's check them out...
+
+```{r remove_outliers, echo= TRUE}
+
+# find the two outliers
+justLOW = gap_mean %>% 
+  filter(LEgroup != "high") %>% 
+  arrange(desc(pop))
+
+# replot population histogram without outliers
 gap_mean %>%
   filter(country != "China" & country != "India") %>% 
   ggplot(aes(pop)) +
   geom_density() +
-  facet_wrap(~ LEgroup)
+  facet_wrap(~ LEgroup) +
+  ggtitle("Distribution of countries by population (China and India removed) in 2007")
 
-gap_mean %>% 
-  ggplot(aes(continent)) +
-  geom_bar() +
-  facet_wrap(~ LEgroup)
-
+rm(justLOW)
 
 ```
 
+Huh, without those outliers the histograms actually seem pretty similar! 
+
+```{r continents_LEgroup, echo=TRUE}
+
+# Barplot of countries in each continent, separated by LEgroup
+gap_mean %>% 
+  ggplot(aes(continent)) +
+  geom_bar() +
+  facet_wrap(~ LEgroup) +
+  ggtitle("Number of countries within each continent in 2007, separated by low and high \nlife expectancies")
+
+rm(gap_mean)
+
+```
+
+Check that out - there are no countries in Oceania that have a low life expectancy! Also, not surprisingly, the highest number of "low LE" countries are in Africa; the highest number of "high LE" countries are in Europe. 
+
+<a href="#top">Back to top</a>
+
 ## More, more, more! 
 
+```{r isThisRight, echo=TRUE}
 
-## Reflection
+# what's wrong with this?
+new_gap = filter(gapminder, country == c("Rwanda", "Afghanistan"))
 
+new_gap  
 
+```
 
+Oops! Nope, the analyst did *not* succeed in extracting all the data from Rwanda and Afghanistan. This function actually only extracted HALF of the data from each country? Why?? This was a little confusing at first, but after checking out the data, we can see that this filters the data in a pattern: first Rwanda, then Afghanistan, repeated over and over. That's because **country == c("Rwanda", "Afghanistan"))** tells filter function will go through that pattern as many times as possible until the end of the data. Here's the proper way to do it:
 
+```{r}
 
+# using the "or" argument
+new_gap2 = filter(gapminder, country == "Rwanda" | country == "Afghanistan")
 
+new_gap2
 
+rm(new_gap, new_gap2)
 
+```
+
+Oh goody, we used the **or** argument. Now we have the full data from each country! Hooray!  
+
+<a href="#top">Back to top</a>
+
+## Reflection  
+I liked this assignment! I think the hardest part was deciding what I wanted to plot, since there were so many variables that we could look at. Once I decided, using filter and select were pretty easy to integrate in. Dplyr is so user friendly, especially with pipes! Mutate was another function that seem easy enough to integrate.  
+
+ggplot, on the other hand, is a bit more confusing for me. I feel like there are so many additions and moving pieces that it's sometimes hard to keep things straight. Simple plots are easy, but once you want to start grouping, adding color, creating multiple panels, etc., things get a little more complicated. Luckily, this [handy-dandy cheatsheet](https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf) exists, so that was really helpful!  
+
+The other place I got stuck was trying to create a new variable with specific labels using the mutate function. I ended up using the ifelse function ("if-else"", not "i-felse" <-- I pronounced it like that for a good month before realizing what it really was...), but it took quite a bit of googling to figure it out. Handy little function, turns out! 
+
+<a href="#top">Back to top</a>
