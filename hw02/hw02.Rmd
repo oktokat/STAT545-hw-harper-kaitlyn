@@ -32,17 +32,20 @@ head(gapminder)
 **Q2: What’s its class?**
 ```{r gapminder_class, echo=TRUE}
 
+typeof(gapminder)
 class(gapminder)
 
 ```
-The data set is a data frame, but it has three official classes: *data frame tbl, tbl,* and *data frame*
+The type of object is a list, but it has three official classes: *data frame tbl, tbl,* and *data frame*
 
 **Q3: How many variables/columns?**
 **Q4: How many rows/observations?**
 ```{r variable_count, echo=TRUE}
 
-ncol(gapminder)
-nrow(gapminder)
+ncol(gapminder) # You can do this
+nrow(gapminder) # Plus this
+
+dim(gapminder) # Or just do this!
 
 ```
 There are `r ncol(gapminder)` variables/columns and `r nrow(gapminder)` rows in this data set.
@@ -54,13 +57,13 @@ glimpse(gapminder)
 str(gapminder)
 
 ```
-One way you could get these dimensions (and a bunch of other info about the data set) is by using the glimpse or str functiosn. These function provide the class of each variable, the number of different values for factor variables, and the first few rows for each variable. This could be helpful when you want to find out more info with fewer clicks, and it can also help us answer the next question! :)
+One way you could get these dimensions (and a bunch of other info about the data set) is by using the glimpse or str functions. These function provide the class of each variable, the number of different values for factor variables, and the first few rows for each variable. This could be helpful when you want to find out more info with fewer clicks, and it can also help us answer the next question! :)
 
-**Q6: What flavor is each variable?**
+**Q6: What flavor is each variable?**  
 The `r names(gapminder)[1]` and `r names(gapminder)[2]` variables are **`r paste(class(gapminder$country), "s", sep = "")`**; the `r names(gapminder)[3]` and `r names(gapminder)[5]` variables are **`r paste(class(gapminder$year), "s", sep = "")`**; the `r names(gapminder)[4]` and `r names(gapminder)[6]` variables are **`r class(gapminder$lifeExp)`**.
 
-## Explore individual variables
-**Pick at least one categorical variable and at least one quantitative variable to explore.**
+## Explore individual variables  
+**Pick at least one categorical variable and at least one quantitative variable to explore.**  
 I will explore the country variable and the life expectancy variable.
 
 **Characterize what’s possible, i.e. all possible values or max vs. min … whatever’s appropriate.**
@@ -77,10 +80,10 @@ summary(gapminder$lifeExp) # provides a simple statistical summary of the variab
 length(unique(round(gapminder$lifeExp, 1))) # provides the number of unique life expectancies for all rows (note: I rounded the numbers to provide a more general statistic)
 
 ```
-*Qualitative variable: country*
+*Qualitative variable: country*  
 There are `r length(unique(gapminder$country))` unique countries in this data set. There are 195 countries in the world, so this data set is missing `r 195-length(unique(gapminder$country))` countries. Each country contains `r table(gapminder$country)[1]` rows, or `r table(gapminder$country)[1]` different points in time. There are `r length(unique(gapminder$continent))` continents represented in this data set. There are `r numCountries[1]` countries represented from `r names(numCountries[1])`, `r numCountries[2]` countries represented from the `r names(numCountries[2])`, `r numCountries[3]` countries represented from `r names(numCountries[3])`, `r numCountries[4]` countries represented from `r names(numCountries[4])`, and `r numCountries[5]` countries represented from `r names(numCountries[5])`
 
-*Quantitative variable: life expectancy*
+*Quantitative variable: life expectancy*  
 First, we'll look at the life expectancy variable as a whole. The minimum life expectancy from all countries, all years was `r round(summary(gapminder$lifeExp)[1], 2)` and the maximum life expectancy was `r round(summary(gapminder$lifeExp)[6], 2)`. The mean life expectancy was `r round(summary(gapminder$lifeExp)[4], 2)`. However, this isn't all that helpful to us, because there are multiple countries and multiple time points measured. A bit later, we'll break up some of the countries and time points and get a better look! 
 
 **What’s typical? What’s the spread? What’s the distribution? Etc., tailored to the variable at hand.**
@@ -93,15 +96,15 @@ ggplot(gapminder, aes(country, lifeExp)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   ylab("life expectancy (years)") + 
   ggtitle("Life expectancy of each country from 1952-2007")
-  
 
 ```
 
-This is a pretty cluttered plot, if I do say so myself. A bit later we'll take a look at what happens when you separate countries with filter and select! 
+Looks like the distribution of life expectancies varies a LOT between countries and also within the same country! Check out the plots below to get a better feel for the data! 
 
-## Explore various plot types
+## Explore various plot types  
+Here are a few different plots using all the data (no filtering/grouping yet)
 
-### Scatterplots
+### Two continuous variables
 ```{r scatterplot, echo=TRUE}
 
 a = ggplot(gapminder, aes(x= year, y = lifeExp))
@@ -121,17 +124,141 @@ a + geom_point() +
 
 ```
 
-### Histogram
+### One qualitative variable
 ```{r histogram, echo=TRUE}
 
-ggplot(gapminder, aes(x=))
+# Histogram of the distribution of life expectancies
+ggplot(gapminder, aes(lifeExp)) +
+  geom_histogram(binwidth = 2) +
+  labs(y = "Count", x = "Life expectancy (years)", title= "Distribution of life expectancies")
+
+# Barplot of the number of country observations within each continent
+ggplot(gapminder, aes(continent)) +
+  geom_bar() +
+  ggtitle("Number of observations per continent")
 
 ```
 
+### One qual + one quant variable
+```{r boxplots, echo=TRUE}
+
+# Filter out the data for 2007
+gapminder2007 = gapminder %>% 
+                  filter(year == 2007)
+
+# Plot gdp per capita for 2007, all countries grouped by continent
+ggplot(gapminder2007, aes(continent, gdpPercap)) + 
+  stat_boxplot() +
+  ggtitle("GDP per capita for each continent in 2007")
+
+rm(gapminder2007) #clean up environment
+
+```
+
+Cool! We can see the plot of data from 2007 above, so let's work off of that and see if we can compare each year. 
+
+```{r boxplots_allData, echo=TRUE}
+
+length(unique(gapminder$year)) # there are 12 different years measured in these data
+
+ggplot(gapminder, aes(x=continent, y=gdpPercap)) +
+  stat_boxplot() +
+  facet_wrap(~ year) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+Looks like the gdp per capita increases over the years and also becomes much more variable, especially in Asia and Europe. Interesting!
+
+## Use filter, select, and pipes! 
+
+```{r gap_small, echo=TRUE}
+
+# Plot the GDP of all countries (minus Oceania) in 1952 and 2007 
+gapminder %>% 
+  filter(continent != "Oceania", year == 1952 | year == 2007) %>% 
+  ggplot(aes(x=continent, y=gdpPercap)) +
+    stat_boxplot(alpha=1/2, size = 1, aes(color=continent), show.legend = FALSE) +
+    facet_wrap(~ year) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+    ggtitle("GDP per capita by continent (1952 vs. 2007)")
 
 
-## Use filter, select, and pipes!
+# Add each individual country with "jitter"
+gapminder %>% 
+  filter(continent != "Oceania", year == 1952 | year == 2007) %>% 
+  ggplot(aes(x=continent, y=gdpPercap)) +
+    stat_boxplot(alpha=1/2, size = 1, aes(color=continent), show.legend = FALSE) +
+    geom_jitter() +
+    facet_wrap(~ year) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+    ggtitle("GDP per capita by continent (1952 vs. 2007)")
 
+```
+
+```{r gap_asia}
+
+asia = gapminder %>% 
+  filter(continent == "Asia", year == 2007) %>%                 # filter only Asia in 2007
+  select(country, lifeExp, gdpPercap, pop) %>%                  # remove year and continent
+  arrange(gdpPercap) %>%                                        # arrange from smallest to largest GDP
+  mutate(gdpGroup = factor(cut(gdpPercap, quantile(gdpPercap), include.lowest= TRUE), labels = c("low", "low-middle", "middle-high", "high"))) 
+                                                                # split gdp into four quantiles
+
+# plot life expectancy by gdp group
+ggplot(asia, aes(gdpPercap, lifeExp)) +
+  geom_point(alpha=3/4, size=3, aes(color=country)) +
+  facet_wrap(~ gdpGroup) +
+  ggtitle("Life expectancy of Asian countries in 2007, grouped by GDP per capita")
+
+rm(asia)
+
+```
+
+Let's explore some common factors in countries that lie below the life expectancy mean. We'll look at only data from 2007.
+
+```{r lowLE, echo=TRUE}
+
+gap_mean = gapminder %>%
+  mutate(LEgroup = ifelse(test = (gdpPercap < mean(gdpPercap)), yes = "low", no = "high")) %>% 
+  filter(year == 2007) %>% 
+  select(-year)
+
+gap_mean %>% 
+  ggplot(aes(gdpPercap)) +
+  geom_density() + 
+  facet_wrap(~ LEgroup)
+
+gap_mean %>% 
+  ggplot(aes(pop)) +
+  geom_density() +
+  facet_wrap(~ LEgroup)
+
+gap_mean_arranged = gap_mean %>% arrange(LEgroup, pop)
+
+gap_mean %>%
+  filter(country != "China" & country != "India") %>% 
+  ggplot(aes(pop)) +
+  geom_density() +
+  facet_wrap(~ LEgroup)
+
+gap_mean %>% 
+  ggplot(aes(continent)) +
+  geom_bar() +
+  facet_wrap(~ LEgroup)
+
+
+```
 
 ## More, more, more! 
+
+
 ## Reflection
+
+
+
+
+
+
+
+
