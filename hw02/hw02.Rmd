@@ -1,0 +1,137 @@
+---
+title: 'Homework #2'
+author: "Kaitlyn Harper"
+date: "September 18, 2017"
+output: 
+  github_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Bring rectangular data in
+```{r load_data, echo=TRUE}
+
+# Load tidyverse + all corresponding packages!
+library(tidyverse)
+
+# Load gapminder dataset
+library(gapminder)
+data("gapminder")
+
+#View data (just to make sure it's there)
+head(gapminder)
+
+```
+
+
+## "Smell test" the data
+**Q1: Is it a data.frame, a matrix, a vector, a list?**
+**Q2: What’s its class?**
+```{r gapminder_class, echo=TRUE}
+
+class(gapminder)
+
+```
+The data set is a data frame, but it has three official classes: *data frame tbl, tbl,* and *data frame*
+
+**Q3: How many variables/columns?**
+**Q4: How many rows/observations?**
+```{r variable_count, echo=TRUE}
+
+ncol(gapminder)
+nrow(gapminder)
+
+```
+There are `r ncol(gapminder)` variables/columns and `r nrow(gapminder)` rows in this data set.
+
+**Q5: Can you get these facts about “extent” or “size” in more than one way? Can you imagine different functions being useful in different contexts?**
+```{r other_ways, echo=TRUE}
+
+glimpse(gapminder)
+str(gapminder)
+
+```
+One way you could get these dimensions (and a bunch of other info about the data set) is by using the glimpse or str functiosn. These function provide the class of each variable, the number of different values for factor variables, and the first few rows for each variable. This could be helpful when you want to find out more info with fewer clicks, and it can also help us answer the next question! :)
+
+**Q6: What flavor is each variable?**
+The `r names(gapminder)[1]` and `r names(gapminder)[2]` variables are **`r paste(class(gapminder$country), "s", sep = "")`**; the `r names(gapminder)[3]` and `r names(gapminder)[5]` variables are **`r paste(class(gapminder$year), "s", sep = "")`**; the `r names(gapminder)[4]` and `r names(gapminder)[6]` variables are **`r class(gapminder$lifeExp)`**.
+
+## Explore individual variables
+**Pick at least one categorical variable and at least one quantitative variable to explore.**
+I will explore the country variable and the life expectancy variable.
+
+**Characterize what’s possible, i.e. all possible values or max vs. min … whatever’s appropriate.**
+```{r variable_info, echo=TRUE}
+
+# Qualitative variable: country
+head(unique(gapminder$country)) # shows the unique values within the country variable (only showing the first six)
+length(unique(gapminder$country)) # number of unique values within the country variable
+head(table(gapminder$country)) # number of rows for each country (only showing first six)
+numCountries = table(gapminder$continent)/(table(gapminder$country)[1]) # number of countries within each continent
+
+# Quantitative variable: life expectancy 
+summary(gapminder$lifeExp) # provides a simple statistical summary of the variable
+length(unique(round(gapminder$lifeExp, 1))) # provides the number of unique life expectancies for all rows (note: I rounded the numbers to provide a more general statistic)
+
+```
+*Qualitative variable: country*
+There are `r length(unique(gapminder$country))` unique countries in this data set. There are 195 countries in the world, so this data set is missing `r 195-length(unique(gapminder$country))` countries. Each country contains `r table(gapminder$country)[1]` rows, or `r table(gapminder$country)[1]` different points in time. There are `r length(unique(gapminder$continent))` continents represented in this data set. There are `r numCountries[1]` countries represented from `r names(numCountries[1])`, `r numCountries[2]` countries represented from the `r names(numCountries[2])`, `r numCountries[3]` countries represented from `r names(numCountries[3])`, `r numCountries[4]` countries represented from `r names(numCountries[4])`, and `r numCountries[5]` countries represented from `r names(numCountries[5])`
+
+*Quantitative variable: life expectancy*
+First, we'll look at the life expectancy variable as a whole. The minimum life expectancy from all countries, all years was `r round(summary(gapminder$lifeExp)[1], 2)` and the maximum life expectancy was `r round(summary(gapminder$lifeExp)[6], 2)`. The mean life expectancy was `r round(summary(gapminder$lifeExp)[4], 2)`. However, this isn't all that helpful to us, because there are multiple countries and multiple time points measured. A bit later, we'll break up some of the countries and time points and get a better look! 
+
+**What’s typical? What’s the spread? What’s the distribution? Etc., tailored to the variable at hand.**
+
+```{r simple_plots, echo=TRUE}
+
+# Plot the life expectancy of each country
+ggplot(gapminder, aes(country, lifeExp)) +
+  geom_point() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  ylab("life expectancy (years)") + 
+  ggtitle("Life expectancy of each country from 1952-2007")
+  
+
+```
+
+This is a pretty cluttered plot, if I do say so myself. A bit later we'll take a look at what happens when you separate countries with filter and select! 
+
+## Explore various plot types
+
+### Scatterplots
+```{r scatterplot, echo=TRUE}
+
+a = ggplot(gapminder, aes(x= year, y = lifeExp))
+
+# Plot life expectancy with unadjusted abline
+a + geom_point() + 
+  labs(title = "A look at life expectancy over the years 1952-2007, unadjusted", y = "life expectancy (years)") + stat_smooth(method="lm", se=FALSE, color = "lightblue", size = 2)
+
+# Use linear regression to adjust for gdp per capita
+reg = lm(gapminder$lifeExp ~ gapminder$year + gapminder$gdpPercap)
+summary(reg)
+coeffs = coefficients(reg)
+
+# Plot life expectancy with abline, adjusted for GDP per capita
+a + geom_point() + 
+  labs(title = "A look at life expectancy over the years 1952-2007, adjusted for GDP per capita", y = "life expectancy (years)") + geom_abline(intercept = coeffs[1], slope = coeffs[2], color = "plum", size = 2)
+
+```
+
+### Histogram
+```{r histogram, echo=TRUE}
+
+ggplot(gapminder, aes(x=))
+
+```
+
+
+
+## Use filter, select, and pipes!
+
+
+## More, more, more! 
+## Reflection
