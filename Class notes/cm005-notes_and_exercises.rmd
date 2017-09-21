@@ -345,11 +345,7 @@ gapminder %>%
 
 ```
 
-############################################################################################################################### 
-############################################################################################################################### 
-############################################################################################################################### 
-############################################################################################################################### 
-############################################################################################################################### 
+############################# START OF CLASS 006 (SEPT21) ####################################
 
 #### `mutate`
 
@@ -370,6 +366,14 @@ mutate(gapminder,
 `transmute` works the same way, but drops all other variables. 
 
 __Exercise__: Make a new column called `cc` that pastes the country name followed by the continent, separated by a comma. (Hint: use the `paste` function with the `sep=", "` argument).
+
+```{r paste_cc, echo=TRUE}
+
+gapminder %>% 
+  mutate(cc = paste(country, continent, sep=", "))
+
+```
+
 
 #### `summarize` and `group_by`
 
@@ -410,7 +414,41 @@ out1 %>%
 
 
 __Exercise__: Find the minimum GDP per capita experienced by each country
+```{r minGDP, echo=TRUE}
+
+gapminder %>%
+  group_by(country) %>% 
+  summarize(minGPD = min(gdpPercap))
+
+```
+
+
 
 __Exercise__: How many years of record does each country have?
 
+```{r years_of_record, echo=TRUE}
+
+gapminder %>% 
+  group_by(country) %>% 
+  summarize(yearCount = length(country))
+
+### BETTER WAY!!!!!
+gapminder %>%
+  group_by(country) %>% 
+  summarize(yearCount = n_distinct(year))
+
+```
+
+
 __Exercise__: Within Asia, what are the min and max life expectancies experienced in each year?
+
+```{r mix_max_LE, echo=TRUE}
+
+gapminder %>% 
+  filter(continent == "Asia") %>% 
+  group_by(year) %>% 
+  summarize(minLE = min(lifeExp), 
+            maxLE = max(lifeExp))
+
+```
+
