@@ -196,7 +196,7 @@ gapminder %>%
 
 
 # Add each individual country with "jitter"
-# "jitter" helps spread the points out so it's easier to see! 
+# "jitter" adds the points onto the plot, but with a tiny bit of error so they're spread out and easier to see!
 gapminder %>% 
   filter(continent != "Oceania", year == 1952 | year == 2007) %>% 
   ggplot(aes(x=continent, y=gdpPercap)) +
