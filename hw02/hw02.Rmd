@@ -33,40 +33,41 @@ head(gapminder)
 **Q2: What’s its class?**
 ```{r gapminder_class, echo=TRUE}
 
-typeof(gapminder)
-class(gapminder)
+typeof(gapminder) #you can check the type of data with this
+class(gapminder) #this is another easy way to check the class of data
 
 ```
-The type of object is a list, but it has three official classes: *data frame tbl, tbl,* and *data frame*
+The type of object is a `r typeof(gapminder)`, but it has three official classes: *data frame tbl, tbl,* and *data frame*.
 
 **Q3: How many variables/columns?**
 **Q4: How many rows/observations?**
 ```{r variable_count, echo=TRUE}
 
-ncol(gapminder) # You can do this
-nrow(gapminder) # Plus this
+ncol(gapminder) # You can do this to check the number of columns
+nrow(gapminder) # Plus this checks the number of rows
 
-dim(gapminder) # Or just do this!
+dim(gapminder) # Or just do this! It will tell you both! 
 
 ```
 There are `r ncol(gapminder)` variables/columns and `r nrow(gapminder)` rows in this data set.
 
-**Q5: Can you get these facts about “extent” or “size” in more than one way? Can you imagine different functions being useful in different contexts?**
+**Q5: Can you get these facts about “extent” or “size” in more than one way? Can you imagine different functions being useful in different contexts?**  
+Let's take a "glimpse" at the data! :)
 ```{r other_ways, echo=TRUE}
 
-glimpse(gapminder)
-str(gapminder)
+glimpse(gapminder) # a helpful function for looking at extent/size
+str(gapminder) # this is another function for looking at extent/size
 
 ```
 One way you could get these dimensions (and a bunch of other info about the data set) is by using the glimpse or str functions. These function provide the class of each variable, the number of different values for factor variables, and the first few rows for each variable. This could be helpful when you want to find out more info with fewer clicks, and it can also help us answer the next question! :)
 
 **Q6: What flavor is each variable?**  
-The `r names(gapminder)[1]` and `r names(gapminder)[2]` variables are **`r paste(class(gapminder$country), "s", sep = "")`**; the `r names(gapminder)[3]` and `r names(gapminder)[5]` variables are **`r paste(class(gapminder$year), "s", sep = "")`**; the `r names(gapminder)[4]` and `r names(gapminder)[6]` variables are **`r class(gapminder$lifeExp)`**.
+To check the "flavor", I looked at the class of each variable. Check out my original [Rmd file](https://github.com/oktokat/STAT545-hw-harper-kaitlyn/blob/master/hw02/hw02.Rmd) to see how I inserted code into this paragraph!! The `r names(gapminder)[1]` and `r names(gapminder)[2]` variables are **`r paste(class(gapminder$country), "s", sep = "")`**; the `r names(gapminder)[3]` and `r names(gapminder)[5]` variables are **`r paste(class(gapminder$year), "s", sep = "")`**; the `r names(gapminder)[4]` and `r names(gapminder)[6]` variables are **`r class(gapminder$lifeExp)`**.
 
 <a href="#top">Back to top</a>
 
 ## Explore individual variables  
-**Pick at least one categorical variable and at least one quantitative variable to explore.**  
+**Pick at least one categorical variable and at least one quantitative variable to explore.**    
 I will explore the country variable and the life expectancy variable.
 
 **Characterize what’s possible, i.e. all possible values or max vs. min … whatever’s appropriate.**
@@ -94,11 +95,12 @@ First, we'll look at the life expectancy variable as a whole. The minimum life e
 ```{r simple_plots, echo=TRUE}
 
 # Plot the life expectancy of each country
-ggplot(gapminder, aes(country, lifeExp)) +
-  geom_point() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  ylab("life expectancy (years)") + 
-  ggtitle("Life expectancy of each country from 1952-2007")
+gapminder %>%                                                 # pipe in data set
+  ggplot(aes(country, lifeExp)) +                             # insert general aesthetics 
+  geom_point() +                                              # add points
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +  # arrange text vertically
+  ylab("life expectancy (years)") +                           # add y-axis label
+  ggtitle("Life expectancy of each country from 1952-2007")   # add title
 
 ```
 
@@ -112,6 +114,7 @@ Here are a few different plots using all the data (no filtering/grouping yet)
 ### Two continuous variables
 ```{r scatterplot, echo=TRUE}
 
+# Create an object with the data/aesthetics
 a = ggplot(gapminder, aes(x= year, y = lifeExp))
 
 # Plot life expectancy with unadjusted abline
@@ -166,10 +169,11 @@ Cool! We can see the plot of data from 2007 above, so let's work off of that and
 
 length(unique(gapminder$year)) # there are 12 different years measured in these data
 
-ggplot(gapminder, aes(x=continent, y=gdpPercap)) +
-  stat_boxplot() +
-  facet_wrap(~ year) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+gapminder %>% 
+  ggplot(aes(x=continent, y=gdpPercap)) +                   # pipe in data and aes
+  stat_boxplot() +                                          # add boxplot
+  facet_wrap(~ year) +                                      # plot in panels separated by year
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))  # arrange y-axis text vertically
 
 ```
 
@@ -183,20 +187,21 @@ Looks like the gdp per capita increases over the years and also becomes much mor
 
 # Plot the GDP of all countries (minus Oceania) in 1952 and 2007 
 gapminder %>% 
-  filter(continent != "Oceania", year == 1952 | year == 2007) %>% 
-  ggplot(aes(x=continent, y=gdpPercap)) +
-    stat_boxplot(alpha=1/2, size = 1, aes(color=continent), show.legend = FALSE) +
-    facet_wrap(~ year) +
-    theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
-    ggtitle("GDP per capita by continent (1952 vs. 2007)")
+  filter(continent != "Oceania", year == 1952 | year == 2007) %>%                      # filter out Oceania, keep only 1952 and 2007
+  ggplot(aes(x=continent, y=gdpPercap)) +                                              # add ggplot aes
+    stat_boxplot(alpha=1/2, size = 1, aes(color=continent), show.legend = FALSE) +     # color the boxes by continent plus adjust the transparency and size; don't show legend
+    facet_wrap(~ year) +                                                               # separate panels by year
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +                         # adjust text to be vertical
+    ggtitle("GDP per capita by continent (1952 vs. 2007)")                             # add title
 
 
 # Add each individual country with "jitter"
+# "jitter" helps spread the points out so it's easier to see! 
 gapminder %>% 
   filter(continent != "Oceania", year == 1952 | year == 2007) %>% 
   ggplot(aes(x=continent, y=gdpPercap)) +
     stat_boxplot(alpha=1/2, size = 1, aes(color=continent), show.legend = FALSE) +
-    geom_jitter() +
+    geom_jitter() + 
     facet_wrap(~ year) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
     ggtitle("GDP per capita by continent (1952 vs. 2007)")
@@ -219,7 +224,7 @@ ggplot(asia, aes(gdpPercap, lifeExp)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   ggtitle("Life expectancy of Asian countries in 2007, grouped by GDP per capita")
 
-rm(asia)
+rm(asia) # cleanup environment
 
 ```
 
@@ -229,9 +234,9 @@ Let's explore some common factors in countries that lie below the life expectanc
 
 # Create a new variable mutate
 gap_mean = gapminder %>%
-  mutate(LEgroup = ifelse(test = (gdpPercap < mean(gdpPercap)), yes = "low", no = "high")) %>% 
-  filter(year == 2007) %>% 
-  select(-year)
+  mutate(LEgroup = ifelse(test = (gdpPercap < mean(gdpPercap)), yes = "low", no = "high")) %>%    #create new variable that keeps only the gdp's below the mean gdp
+  filter(year == 2007) %>%                       # keep only data from 2007
+  select(-year)                                  # get rid of the year variable (it's obsolete now)
 
 head(gap_mean) # Countries now are classified as having "high" or "low" life expectancy
 
@@ -257,18 +262,18 @@ Hmmm... what are those outliers in the "low life expectancy" group? Let's check 
 
 # find the two outliers
 justLOW = gap_mean %>% 
-  filter(LEgroup != "high") %>% 
-  arrange(desc(pop))
+  filter(LEgroup != "high") %>%     # keep only rows that have "high LE"
+  arrange(desc(pop))                # arrange them in descending order to see which ones are the highest outliers
 
 # replot population histogram without outliers
 gap_mean %>%
-  filter(country != "China" & country != "India") %>% 
+  filter(country != "China" & country != "India") %>%    # remove China and India
   ggplot(aes(pop)) +
   geom_density() +
   facet_wrap(~ LEgroup) +
   ggtitle("Distribution of countries by population (China and India removed) in 2007")
 
-rm(justLOW)
+rm(justLOW) #clean up
 
 ```
 
@@ -295,7 +300,7 @@ Check that out - there are no countries in Oceania that have a low life expectan
 
 ```{r isThisRight, echo=TRUE}
 
-# what's wrong with this?
+# what's wrong with this? see below for answer!
 new_gap = filter(gapminder, country == c("Rwanda", "Afghanistan"))
 
 new_gap  
