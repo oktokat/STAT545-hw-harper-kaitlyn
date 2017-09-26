@@ -19,6 +19,8 @@ Howdy! This is a private repo for STAT545 coursework of Kaitlyn Harper. Check ou
 
 ## Helpful links 
 - [Click here](http://stat545.com/) for the main stat 545 page
+- [dplyr cheatsheet](https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf)
+- [ggplot cheatsheet](https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf)
 
 ## [Class notes](https://github.com/oktokat/STAT545-hw-harper-kaitlyn/tree/master/Class%20notes)
 - [dplyr notes](https://github.com/oktokat/STAT545-hw-harper-kaitlyn/blob/master/Class%20notes/cm005-notes_and_exercises.rmd)
