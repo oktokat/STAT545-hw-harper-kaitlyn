@@ -133,7 +133,7 @@ p2
 ```
 
 
-3. To `p2`, colour the points by `continent`. but this time with year being represented by the size of the points.
+3. To `p2`, colour the points by `continent`, with year being represented by the size of the points.
 
 ```{r gdp_LE, echo=TRUE}
 
@@ -163,41 +163,3 @@ gapminder %>%
 ### They're the same! 
 
 ```
-
-################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################
-
-## Continuation of `ggplot2`
-
-Now that we've got the basics down pat, let's expand our flexibility by going through [Jenny's scatterplot tutorial](https://github.com/jennybc/ggplot2-tutorial/blob/master/gapminder-ggplot2-scatterplot.md).
-
-```{r}
-
-library(tibble)
-
-ggplot(gapminder, aes(x = year, y = lifeExp,
-                      color = continent)) +
-  geom_jitter(alpha = 1/3, size = 3)
-
-### jitter adds a bit of random variation... what does this do? 
-ggplot(gapminder, aes(x = year, y = lifeExp,
-                      color = continent)) +
-  geom_point(alpha = 1/3, size = 3)
-
-```
-
-
-### Regression curve
-
-__Exercise 5__: Make a plot of `year` (x) vs `lifeExp` (y), with points coloured by continent. Then, fit a regression line to each continent, without the error bars. If you can, try piping the data frame into the `ggplot` function.
-
-### Facetting
-
-__Exercise 6__: Make a plot of `year` (x) vs `lifeExp` (y), facetted by continent. Then, fit a smoother through the data for each continent, without the error bars. Choose a span that you feel is appropriate.
-
-### `geom_line`
-
-The key here is to remember to indicate the variable to group by with `group=variable`.
-
-__Exercise 7__: Plot the population over time (year) using lines, so that each country has its own line. Add alpha transparency to your liking. 
-
-__Exercise 8__: Add points to the plot in Exercise 7.
