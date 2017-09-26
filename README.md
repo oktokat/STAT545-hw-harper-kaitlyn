@@ -5,6 +5,7 @@ Howdy! This is a private repo for STAT545 coursework of Kaitlyn Harper. Check ou
 ## Homework assignments
 
 - Assignment #1
+    + [README](https://github.com/oktokat/STAT545-hw01-harper-kaitlyn) for assignment one - go here to learn more about me!
     + [hw01 md](https://github.com/oktokat/STAT545-hw01-harper-kaitlyn/blob/master/hw01_gapminder.md)
     + [hw01 Rmd](https://github.com/oktokat/STAT545-hw01-harper-kaitlyn/blob/master/hw01_gapminder.Rmd)
     + [all plots](https://github.com/oktokat/STAT545-hw01-harper-kaitlyn/blob/master/hw01_gapminder_files/figure-html/plot1-1.png)
