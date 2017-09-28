@@ -24,4 +24,7 @@ Howdy! This is a private repo for STAT545 coursework of Kaitlyn Harper. Check ou
 - [ggplot cheatsheet](https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf)
 
 ## [Class notes](https://github.com/oktokat/STAT545-hw-harper-kaitlyn/tree/master/Class%20notes)
-- [dplyr notes](https://github.com/oktokat/STAT545-hw-harper-kaitlyn/blob/master/Class%20notes/cm005-notes_and_exercises.rmd)
+- [Class 5](https://github.com/oktokat/STAT545-hw-harper-kaitlyn/blob/master/Class%20notes/cm005-notes_and_exercises.rmd)
+- [Class 6](https://github.com/oktokat/STAT545-hw-harper-kaitlyn/blob/master/Class%20notes/cm006-notes_and_exercises.rmd)
+- [Class 7](https://github.com/oktokat/STAT545-hw-harper-kaitlyn/blob/master/Class%20notes/cm007-notes_and_exercises.rmd)
+- [Class 8](https://github.com/oktokat/STAT545-hw-harper-kaitlyn/blob/master/Class%20notes/cm008-notes_and_exercises.rmd)
