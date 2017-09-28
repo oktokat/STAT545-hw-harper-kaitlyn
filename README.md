@@ -18,6 +18,13 @@ Howdy! This is a private repo for STAT545 coursework of Kaitlyn Harper. Check ou
     + [all plots](https://github.com/oktokat/STAT545-hw-harper-kaitlyn/tree/master/hw02/hw02_files/figure-markdown_github-ascii_identifiers)
     + [HW02 instructions and rubric](http://stat545.com/hw02_explore-gapminder-dplyr.html)
 
+
+- Assignment #3
+    + [hw03 md]()
+    + [hw03 Rmd](https://github.com/oktokat/STAT545-hw-harper-kaitlyn/blob/master/hw03/hw03.Rmd)
+    + [all plots]()
+    + [HW03 instructions and rubric]()
+
 ## Helpful links 
 - [Click here](http://stat545.com/) for the main stat 545 page
 - [dplyr cheatsheet](https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf)

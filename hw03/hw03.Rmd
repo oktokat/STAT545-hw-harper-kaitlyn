@@ -11,7 +11,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Bring rectangular data in
+## Load data and packages
 ```{r load_data, echo=TRUE}
 
 # Load tidyverse + all corresponding packages!
