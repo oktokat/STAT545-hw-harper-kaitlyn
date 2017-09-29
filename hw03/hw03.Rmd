@@ -40,7 +40,7 @@ min_max = gapminder %>%
             meanGDP = mean(gdpPercap),
             sdGDP = sd(gdpPercap))
 
-knitr::kable(min_max, col.names = c("Continent", "Max GDP", "Min GDP", "Mean GDP", ""))
+knitr::kable(min_max, col.names = c("Continent", "Max GDP", "Min GDP", "Mean GDP", "SD GDP"), format = "html", caption = "Table 1. Spread of GDP per capita within each continent")
 
 ```
 
@@ -52,6 +52,8 @@ gapminder %>%
   labs(x = "Country", y = "GDP per capita", title = "Spread of GDP per capita within each continent") +
   theme_dark(base_size = 13, base_family = "Courier")
 
+rm(min_max)
+
 ```
 
 <a href="#top">Back to top</a>
@@ -60,7 +62,15 @@ gapminder %>%
 
 ```{r LEtable, echo=TRUE}
 
-### make this table later
+gapMeanLE = gapminder %>%
+  group_by(continent, year) %>% 
+  summarise(meanLE = mean(lifeExp))
+
+gapMeanLE = gapMeanLE %>%
+  group_by(continent) %>% 
+  summarise(deltaLE = round(meanLE[year==2007] - meanLE[year==1952], 2))
+
+knitr::kable(gapMeanLE, col.names = c("Continent", "Years"), align = "c", format = "html", caption = "Table 2. Increases in life expectancy (in years) from 1952-2007")
 
 ```
 
@@ -77,15 +87,40 @@ gapminder %>%
   theme_light(base_family = "Palatino") +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.border = element_blank())
 
+rm(gapMeanLE)
+
 ```
 
 ## Report the absolute and/or relative abundance of countries with low life expectancy over time by continent: Compute some measure of worldwide life expectancy – you decide – a mean or median or some other quantile or perhaps your current age. Then determine how many countries on each continent have a life expectancy less than this benchmark, for each year.
 
 ```{r lowLE, echo=TRUE}
 
+# Find the global mean and median life expectancies
+summary(gapminder$lifeExp)[3:4] # median= ~59, mean= ~60
 
+# Make table for countries with low LE
+gapLowLE <- gapminder %>% 
+    mutate(LEcat=c("low", "high")[(lifeExp>summary(gapminder$lifeExp)[[4]]) + 1]) %>% 
+    filter(LEcat=="low") %>% 
+    group_by(continent, year) %>% 
+    summarise(numberLow = n())
+
+# number of unique countries
+gapminder %>% 
+  group_by(continent) %>% 
+  summarise(n()/12)
+
+
+# knitr::kable(tab1, col.names = c("Life Expectancy", "N (%)"), align = "l", format = "html", caption = "Table 2. Increases in life expectancy (in years) from 1952-2007")
 
 ```
+The chunk of code above is a bit messy, so I'm going to explain what I did here.  
 
+*Part 1*
+- `gapLowLE <- gapminder %>%`: create a new data frame called gapLowLE with the same data as gapminder  
+- `mutate(LEcat=c("low", "high")[(lifeExp>summary(gapminder$lifeExp)[[4]]) + 1])`: create a new column in gapLowLE that categorizes life expectancy. Countries with a life expectancy under the mean (`summary(gapminder$lifeExp)[[4]]`) were categorized as low, while those above were categorized as high.
+
+*Part 2*
+- `tab1 = data.frame(table(gapLowLE$LEcat)) %>%` create a new data frame of the frequencies 
 
 ## Find countries with interesting stories. Open-ended and, therefore, hard. Promising but unsuccessful attempts are encouraged. This will generate interesting questions to follow up on in class.
