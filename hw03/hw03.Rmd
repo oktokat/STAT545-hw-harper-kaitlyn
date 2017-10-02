@@ -18,6 +18,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(knitr)
 library(kableExtra)
+library(grid)
 
 # Load gapminder dataset
 library(gapminder)
@@ -145,8 +146,6 @@ gapLowLE %>%
   # Format using kable
   knitr::kable(tab1, format = "html", caption = "Table 3. Percentage of countries per continent with life expectancy lower than 60 years")
 
-rm(tab1, gapLowLE)
-
 ```
 
 <a href="#top">Back to top</a>
@@ -183,8 +182,6 @@ I want to look for countries that had a decrease and subsequent increase in gdp 
   a = nrow(flux) # there are 22 countries in asia that fluctuate gdp per capita
   b = nrow(data.frame(unique(gapminder$country[which(gapminder$continent=="Asia")]))) # there are 33 countries total in Asia
   round((a/b)*100) #67% of countries in asia had fluctuating gdp's between 1952-2007
-
-  rm(a,b, gdpFlux)
   
 # Plot flux countries   
   Asia %>% 
@@ -194,11 +191,28 @@ I want to look for countries that had a decrease and subsequent increase in gdp 
     geom_smooth(method="loess", aes(color=country), se=FALSE) +
     ggtitle("Fluctuations in GDP per capita from 1952-2007 in Asian countries")
   
+rm(a,b, gdpFlux, Asia, flux) #cleanup
+  
 ```
 
 It looks like Kuwait is a pretty big outlier among the Asian countries! They had a huge decrease in gdp per capita until ~1987, then it started to increase a bit more. Let's take a closer look at this! 
 
-```{r}
+```{r kuwait, echo=TRUE}
+
+kuwait = gapminder %>% filter(country == "Kuwait")
+
+gdpPlot = kuwait %>% 
+  ggplot(aes(x=year, y=gdpPercap))+
+  geom_point()+
+  geom_smooth(method="loess")
+
+LEplot = kuwait %>% 
+  ggplot(aes(x=year, y=lifeExp))+
+  geom_point()+
+  geom_smooth(method="loess")
+
+grid.newpage()
+grid.draw(rbind(ggplotGrob(gdpPlot), ggplotGrob(LEplot), size = "last"))
 
 ```
 
@@ -237,17 +251,4 @@ In this chunk, I wanted to rearrange data from the previous data table and put i
 
 Other than that, I enjoyed the assignment and had fun formatting my plots with features I hadn't really known about previously (like how to format the title, text, etc.) It was also fun to start to ask random questions about the data and explore it how we would normally, instead of just answering simple, cookie cutter questions. I used ?function quite a bit to find out more about various functions, as well as explored some questions on Stack Overflow, like [this one](https://stackoverflow.com/questions/29904974/conditionally-count-in-dplyr) that has to do with counting values conditionally using dplyr.
 
-```{r}
-
-starwars %>%
-  select(name:mass, gender, species) %>%
-  mutate(
-    type = case_when(
-      height > 200 | mass > 200 ~ "large",
-      species == "Droid"        ~ "robot",
-      TRUE                      ~  "other"
-    )
-  )
-
-```
 
