@@ -17,6 +17,7 @@ knitr::opts_chunk$set(echo = TRUE)
 # Load packages
 library(tidyverse)
 library(knitr)
+library(kableExtra)
 
 # Load gapminder dataset
 library(gapminder)
@@ -40,7 +41,10 @@ min_max = gapminder %>%
             meanGDP = mean(gdpPercap),
             sdGDP = sd(gdpPercap))
 
-knitr::kable(min_max, col.names = c("Continent", "Max GDP", "Min GDP", "Mean GDP", "SD GDP"), format = "html", caption = "Table 1. Spread of GDP per capita within each continent")
+min_max %>% 
+  kable(col.names = c("Continent", "Max GDP", "Min GDP", "Mean GDP", "SD GDP"), format = "html",
+        caption = "Table 1. Spread of GDP per capita within each continent") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = F)
 
 ```
 
@@ -70,7 +74,10 @@ gapMeanLE = gapMeanLE %>%
   group_by(continent) %>% 
   summarise(deltaLE = round(meanLE[year==2007] - meanLE[year==1952], 2))
 
-knitr::kable(gapMeanLE, col.names = c("Continent", "Years"), align = "c", format = "html", caption = "Table 2. Increases in life expectancy (in years) from 1952-2007")
+gapMeanLE %>% 
+  kable(col.names = c("Continent", "Years"), align = "c", format = "html", 
+        caption = "Table 2. Increases in life expectancy (in years) from 1952-2007") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = T)
 
 ```
 
@@ -81,13 +88,13 @@ gapminder %>%
   group_by(continent, year) %>% 
   summarise(meanLE = mean(lifeExp)) %>% 
   ggplot(aes(x=year, y=meanLE)) +
-  geom_smooth(aes(color=continent), se=FALSE) +
+  geom_smooth(method="loess", aes(color=continent), se=FALSE) +
   scale_color_discrete("Continents") +
   labs(x="Year", y= "Mean Life Expectancy (Years)", title="Life expectancy changes in each continent, 1952-2007") +
   theme_light(base_family = "Palatino") +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.border = element_blank())
 
-rm(gapMeanLE)
+rm(gapMeanLE) # cleanup
 
 ```
 
@@ -98,29 +105,38 @@ rm(gapMeanLE)
 # Find the global mean and median life expectancies
 summary(gapminder$lifeExp)[3:4] # median= ~59, mean= ~60
 
+# Since they're about the same, I'll just use the mean
+
 # Make table for countries with low LE
 gapLowLE <- gapminder %>% 
     mutate(LEcat=c("low", "high")[(lifeExp>summary(gapminder$lifeExp)[[4]]) + 1]) %>% 
-    filter(LEcat=="low") %>% 
+    select(1:3, 7) %>% 
     group_by(continent, year) %>% 
-    summarise(numberLow = n())
+    summarise(numberLow = sum(LEcat=="low"), percentLow = 100*round(sum(LEcat=="low")/n(), 2))
 
-# number of unique countries
-gapminder %>% 
-  group_by(continent) %>% 
-  summarise(n()/12)
+# Plot percentage of countries with life exp lower than 60 years
+gapLowLE %>% 
+  ggplot(aes(x=year, y=percentLow)) +
+  geom_bar(stat="identity") +
+  facet_wrap(~ continent) +
+  labs(x="Year", y="Percent of total countries", title="Percentage of countries with life expectancies lower than 60 years, by continent") +
+  theme(strip.background = element_rect(fill="cornflower blue"),
+        axis.title = element_text(size=14, face="italic"),
+        strip.text = element_text(size=14, face="bold"))
 
+tab1 = data.frame(
+Year = as.vector(unique(gapminder$year)),
+Africa = as.vector(gapLowLE$percentLow[which(gapLowLE$continent=="Africa")]),
+Americas = as.vector(gapLowLE$percentLow[which(gapLowLE$continent=="Americas")]),
+Europe = as.vector(gapLowLE$percentLow[which(gapLowLE$continent=="Europe")]),
+Asia = as.vector(gapLowLE$percentLow[which(gapLowLE$continent=="Asia")]),
+Oceania = as.vector(gapLowLE$percentLow[which(gapLowLE$continent=="Oceania")])
+)
 
-# knitr::kable(tab1, col.names = c("Life Expectancy", "N (%)"), align = "l", format = "html", caption = "Table 2. Increases in life expectancy (in years) from 1952-2007")
+knitr::kable(tab1, format = "html", caption = "Table 3. Percentage of countries per continent with life expectancy lower than 60 years")
+
+rm(tab1)
 
 ```
-The chunk of code above is a bit messy, so I'm going to explain what I did here.  
-
-*Part 1*
-- `gapLowLE <- gapminder %>%`: create a new data frame called gapLowLE with the same data as gapminder  
-- `mutate(LEcat=c("low", "high")[(lifeExp>summary(gapminder$lifeExp)[[4]]) + 1])`: create a new column in gapLowLE that categorizes life expectancy. Countries with a life expectancy under the mean (`summary(gapminder$lifeExp)[[4]]`) were categorized as low, while those above were categorized as high.
-
-*Part 2*
-- `tab1 = data.frame(table(gapLowLE$LEcat)) %>%` create a new data frame of the frequencies 
 
 ## Find countries with interesting stories. Open-ended and, therefore, hard. Promising but unsuccessful attempts are encouraged. This will generate interesting questions to follow up on in class.
