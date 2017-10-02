@@ -91,6 +91,7 @@ gapMeanLE %>%
 
 ```
 
+Cool, that's semi-informative. But let's see how it looks on an actual plot...
 
 ```{r LEplot, echo=TRUE}
 
