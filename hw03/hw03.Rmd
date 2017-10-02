@@ -145,7 +145,7 @@ gapLowLE %>%
   # Format using kable
   knitr::kable(tab1, format = "html", caption = "Table 3. Percentage of countries per continent with life expectancy lower than 60 years")
 
-rm(tab1)
+rm(tab1, gapLowLE)
 
 ```
 
@@ -153,6 +153,55 @@ rm(tab1)
 
 ## Extra exploration
 **Details: Find countries with interesting stories. Open-ended and, therefore, hard. Promising but unsuccessful attempts are encouraged. This will generate interesting questions to follow up on in class.**
+
+I want to look for countries that had a decrease and subsequent increase in gdp per capita, then look for trends within those countries. I will isolate countries in Asia just to make it easier on myself.
+
+```{r fluxAsia, echo=TRUE}
+
+# Create a df with only countries from Asia
+  Asia = gapminder %>%
+    filter(continent=="Asia") 
+   
+# Plot the initial data in Asia
+  Asia %>% 
+    ggplot(aes(x=year, y=gdpPercap)) +
+    geom_point(aes(color=country)) +
+    geom_smooth(method="loess", aes(color=country), se=FALSE) +
+    ggtitle("GDP per capita from 1952-2007 in Asian countries")
+
+# Find only countries that have a decrease and then increase in GDP per capita
+  gdpFlux = Asia %>% 
+    group_by(country) %>% 
+    mutate(deltaGDP= ifelse((lag(gdpPercap)>gdpPercap), "decrease", "increase")) %>%  #label countries as decrease or increase depending on their previous year's gdp per capita
+    filter(deltaGDP == "decrease" & lead(deltaGDP) == "increase") %>% #isolate only those years where there was a decrease and increase after
+    select(-deltaGDP) #clean up df a little (remove unnecessary column)
+
+# Isolate the countries found in the process above (i.e. those with fluctuations in gdp per capita)
+  flux = data.frame(unique(gdpFlux$country))
+
+# Find percentage of countries in Asia that fluctuate gdp compared to those that don't fluctuate
+  a = nrow(flux) # there are 22 countries in asia that fluctuate gdp per capita
+  b = nrow(data.frame(unique(gapminder$country[which(gapminder$continent=="Asia")]))) # there are 33 countries total in Asia
+  round((a/b)*100) #67% of countries in asia had fluctuating gdp's between 1952-2007
+
+  rm(a,b, gdpFlux)
+  
+# Plot flux countries   
+  Asia %>% 
+    filter(country %in% flux[,1]) %>%  #filter only countries in flux
+    ggplot(aes(x=year, y=gdpPercap)) +
+    geom_point(aes(color=country)) +
+    geom_smooth(method="loess", aes(color=country), se=FALSE) +
+    ggtitle("Fluctuations in GDP per capita from 1952-2007 in Asian countries")
+  
+```
+
+It looks like Kuwait is a pretty big outlier among the Asian countries! They had a huge decrease in gdp per capita until ~1987, then it started to increase a bit more. Let's take a closer look at this! 
+
+```{r}
+
+```
+
 
 <a href="#top">Back to top</a>
 
@@ -187,3 +236,18 @@ gapMeanLE = gapMeanLE %>%
 In this chunk, I wanted to rearrange data from the previous data table and put it in a new format. Again, this feels really repetitive and I'm sure there was a better way to do this, but I couldn't figure out how. Apply functions perhaps? Any insight would be helpful :) 
 
 Other than that, I enjoyed the assignment and had fun formatting my plots with features I hadn't really known about previously (like how to format the title, text, etc.) It was also fun to start to ask random questions about the data and explore it how we would normally, instead of just answering simple, cookie cutter questions. I used ?function quite a bit to find out more about various functions, as well as explored some questions on Stack Overflow, like [this one](https://stackoverflow.com/questions/29904974/conditionally-count-in-dplyr) that has to do with counting values conditionally using dplyr.
+
+```{r}
+
+starwars %>%
+  select(name:mass, gender, species) %>%
+  mutate(
+    type = case_when(
+      height > 200 | mass > 200 ~ "large",
+      species == "Droid"        ~ "robot",
+      TRUE                      ~  "other"
+    )
+  )
+
+```
+
