@@ -78,12 +78,14 @@ intersect(A, B)
 union(A, B)
 setdiff(A, B)
 
+rm(flights2, airlines, planes, weather, A, B)
 ```
 
 
-```{r}
-suppressPackageStartupMessages(library(dplyr))
+```{r load_exercises}
 suppressPackageStartupMessages(library(gapminder))
+data(gapminder)
+head(gapminder)
 ```
 
 ## Exercises 
@@ -99,19 +101,67 @@ Consider the following areas of countries, in hectares:
 
 1. To the `gapminder` dataset, add an `area` variable using the `areas` tibble. Be sure to preserve all the rows of the original `gapminder` dataset.
 
+```{r addArea}
+
+left_join(gapminder, areas)
+
+```
+
+
 2. To the `gapminder` dataset, add an `area` variable using the `areas` tibble, but only keeping obervations for which areas are available. 
+
+```{r innerjoinArea}
+
+inner_join(gapminder, areas, by = "country")
+
+```
+
 
 3. Use a `_join` function to output the rows in `areas` corresponding to countries that _are not_ found in the `gapminder` dataset. 
 
+```{r antijoin}
+
+anti_join(areas, gapminder)
+
+```
+
+
 4. Use a `_join` function to output the rows in `areas` corresponding to countries that _are_ found in the `gapminder` dataset. 
+
+```{r semijoin}
+
+semi_join(areas, gapminder)
+
+```
+
 
 5. Construct a tibble that joins `gapminder` and `areas`, so that all rows found in each original tibble are also found in the final tibble. 
 
+```{r fulljoin}
+
+t1 = gapminder %>% full_join(areas) # this
+t2 = full_join(gapminder, areas) # and this produce the same thing
+
+rm(t1, t2)
+```
 
 6. Subset the `gapminder` dataset to have countries that are only found in the `areas` data frame. 
+
+```{r}
+
+semi_join(gapminder, areas)
+
+```
 
 
 7. Subset the `gapminder` dataset to have countries that are _not_ found in the `areas` data frame. 
 
+```{r}
+
+anti_join(gapminder, areas)
+
+#all things in gapminder except Canada, US, India
+
+```
 
 
