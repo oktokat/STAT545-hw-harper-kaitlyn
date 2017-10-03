@@ -1,0 +1,117 @@
+---
+title: "Class 9 notes"
+author: "Kaitlyn Harper"
+date: "October 3, 2017"
+output: 
+  github_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### [dplyr vignette](https://cran.r-project.org/web/packages/dplyr/vignettes/two-table.html)
+
+```{r load, echo=FALSE}
+
+library("nycflights13")
+data(airlines)
+data(weather)
+data(planes)
+
+# Drop unimportant variables so it's easier to understand the join results.
+flights2 <- flights %>% select(year:day, hour, origin, dest, tailnum, carrier)
+
+
+flights2 %>% 
+  left_join(airlines)
+
+```
+
+
+
+```{r left_join}
+
+flights2 %>% left_join(weather)
+
+```
+
+## Types of join
+
+**In each of the following, x=first data frame, y=second data frame:**
+
+`inner_join(x, y)` only includes observations that match in both x and y.
+
+`outer_join(x, y)` keeps rows from both data sets
+
+`left_join(x, y, by="matching_variable")` includes all observations in x, regardless of whether they match or not. This is the most commonly used join because it ensures that you don’t lose observations from your primary table. Modifies "x" df
+
+`right_join(x, y)` includes all observations in y. It’s equivalent to left_join(y, x), but the columns will be ordered differently.
+
+`full_join()` includes all observations from x and y. e.g. `df1 %>% full_join(df2)`
+
+
+### Filtering joins - these won't add columns, it will only subset your data frame
+
+`semi_join(x, y)` keeps all observations in x that have a match in y.
+
+`anti_join(x, y)` drops all observations in x that have a match in y. (only the ones in x that aren't in y -- NOT the other way around)
+
+
+## Set operations
+
+The final type of two-table verb is set operations. These expect the x and y inputs to have the same variables, and treat the observations like sets:
+
+`intersect(x, y)` return only observations in both x and y
+
+`union(x, y)` return unique observations in x and y
+
+`setdiff(x, y)` return observations in x, but not in y.
+
+```{r}
+
+A = c("a","b","c")
+B = c("b", "e")
+
+intersect(A, B)
+union(A, B)
+setdiff(A, B)
+
+```
+
+
+```{r}
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(gapminder))
+```
+
+## Exercises 
+
+Consider the following areas of countries, in hectares:
+
+```{r}
+(areas <- data.frame(country=c("Canada", "United States", "India", "Vatican City"),
+                     area=c(998.5*10^6, 983.4*10^6, 328.7*10^6, 44)) %>% 
+     as.tbl)
+```
+
+
+1. To the `gapminder` dataset, add an `area` variable using the `areas` tibble. Be sure to preserve all the rows of the original `gapminder` dataset.
+
+2. To the `gapminder` dataset, add an `area` variable using the `areas` tibble, but only keeping obervations for which areas are available. 
+
+3. Use a `_join` function to output the rows in `areas` corresponding to countries that _are not_ found in the `gapminder` dataset. 
+
+4. Use a `_join` function to output the rows in `areas` corresponding to countries that _are_ found in the `gapminder` dataset. 
+
+5. Construct a tibble that joins `gapminder` and `areas`, so that all rows found in each original tibble are also found in the final tibble. 
+
+
+6. Subset the `gapminder` dataset to have countries that are only found in the `areas` data frame. 
+
+
+7. Subset the `gapminder` dataset to have countries that are _not_ found in the `areas` data frame. 
+
+
+
