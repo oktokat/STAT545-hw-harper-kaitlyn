@@ -421,12 +421,12 @@ gapminder %>%
   
 ```
 
-- The population, in billions.
+- The population, in billions. <-- vectorized function (takes a vector and returns a vector of the same length, but each component of the new vector depends on only one value (or multiple values in the same row) in the previous vector) 
 
 ```{r popBillions, echo=TRUE}
 
 head(gapminder %>%
-  mutate(popBillions = round(pop/1e9, 3)))
+  mutate(popBillions = round(pop/1e6, 3)))
 
 ```
 
@@ -434,14 +434,20 @@ head(gapminder %>%
 - The lagged gdpPercap
     - i.e., the value that appears for 1962 would be the gdpPercap in 1957 (the previous entry).
     - Hint: use the `lag` function, then filter out the `NA`'s created with the `is.na` function.
+    
+^^^window function (takes a vector and returns a vector of the same length, but each component of the new vector depends on the entire (or multiple values in the) original vector) 
 
 ```{r laggedGDP, echo=TRUE}
 
 (test = head(gapminder %>%
-  mutate(laggedGDP = lag(gdpPercap))) %>% 
-  na.omit())
+              group_by(country) %>% 
+              mutate(laggedGDP = lag(gdpPercap))) %>% 
+              na.omit())
+
+OR
 
 head(gapminder) %>%
+  group_by(country) %>% 
   mutate(laggedGDP = lag(gdpPercap)) %>% 
   filter(!is.na(laggedGDP)) 
 
@@ -461,3 +467,28 @@ __Exercise 2__: For the `gapminder` dataset, make a spaghetti plot showing the p
 - Only label the x axis with years 1950, 1975, and 2000.
 - Move the colour scale to the bottom.
 - Rename the colour legend
+
+```{r spaghetti, echo=TRUE}
+
+gapminder %>% 
+  group_by(country) %>% 
+  mutate(max.log.gdp = log(max(gdpPercap))) %>% 
+  ggplot(aes(x=year, y=pop/10^6)) +
+  facet_wrap(~continent)+
+  geom_line(aes(group=country, color=log(max.log.gdp)), alpha=0.25) +
+  scale_x_continuous("", breaks = c(1950, 1975, 2000)) +
+  labs(x="", y="log(Population)", title="Change in population over time, grouped by log-GDP per capita") +
+  scale_colour_continuous("log Max") +
+  scale_y_log10("Pop (millions)", 
+                breaks=c(0.1, 1, 10, 100, 1000), #every power of ten b/c it's on the log-scale
+                labels=c(0.1, 1, 10, 100, 1000)) + #add labels b/c it's going to give it in 1e+03 notation if not
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90), 
+        plot.title = element_text(hjust = 0.5), 
+        legend.position = "bottom")
+
+
+
+
+```
+
