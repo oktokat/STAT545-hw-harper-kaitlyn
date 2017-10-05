@@ -1,0 +1,102 @@
+---
+title: "Class 10 notes"
+author: "Kaitlyn Harper"
+date: "October 5, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load}
+
+library(tidyverse)
+library(devtools)
+install_github("JoeyBernhardt/singer")
+
+library(singer)
+data(locations)
+data(songs)
+
+View(locations)
+View(songs)
+
+```
+
+## dplyr::join review
+
+```{r}
+
+left_join()
+inner_join()
+right_join()
+full_join()
+anti_join()
+semi_join()
+
+```
+
+### Challenges
+
+1. Produce a df with all the albums, artists, and the year in which the album was released 
+
+```{r }
+
+new_df = left_join(locations, songs, by="title") %>%  #add the songs data (containing year) to the locations df
+  select(release, artist_name.x, year)  #keep only the variables you want
+
+### This doesn't work:
+new_df2 = left_join(songs, locations, by="title") %>%  
+  select(release, artist_name.x, year) %>% 
+  na.omit() #because one of the albums doesn't have a release YEAR - so it gets rid of it and you end up with only 13 rows instead of 14 
+
+rm(new_df2)
+
+```
+
+2. Get the number of releases per year 
+
+```{r}
+
+# if you made a new df first (not dplyr)
+table(new_df$year)
+
+# if you want to pipe in directly (using dplyr functions)
+inner_join(songs, locations, by="title") %>% 
+  count(year)
+
+rm(new_df, locations, songs)
+
+```
+
+
+## Reshaping
+
+```{r load_large_df}
+
+data("singer_locations")
+
+```
+
+**WIDE df vs LONG df**
+
+
+
+```{r change_over_time}
+
+small_df = singer_locations %>% 
+  select(year, artist_hotttnesss, artist_familiarity, duration) %>% 
+  filter(year != 0) #remove values that we don't know the year of 
+
+small_df %>% 
+  ggplot(aes(year, duration))+
+  geom_point()
+
+```
+
+
+
+
+
+
