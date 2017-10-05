@@ -1,0 +1,42 @@
+---
+title: 'Homework #4'
+author: "Kaitlyn Harper"
+date: "October 5, 2017"
+output: 
+  github_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## General data reshaping and relationship to aggregation
+
+Activity #1 - make a cheatsheet for the tidy package (gather and spread functions)
+
+Hi there! Welcome to my tidy data cheatsheet. I got most of my information from [this](http://vita.had.co.nz/papers/tidy-data.pdf) paper, written by the one and only Hadley Wickham. He goes into a lot more detail and uses large data sets as examples, so if you find yourself itching for more information, I'd definitely recommend checking it out! 
+
+Okay then, let's get going! 
+
+- make two examples of messy data 
+- plot messy data
+- fix messy data (make tidy data)
+- plot tidy data
+
+1. Each variable forms a column.
+2. Each observation forms a row.
+3. Each type of observational unit forms a table
+
+Five most common problems of messy data:
+• Column headers are values, not variable names. (treatmenta, treatmentb, placebo - with frequency in each one)
+• Multiple variables are stored in one column. (maleGene1, femaleGene1, maleGene2, femaleGene2)
+• Variables are stored in both rows and columns. (within age column: c(m14, m21, f15, f18)
+• Multiple types of observational units are stored in the same table. element: c(tmax, tmin, tmax, tmin) ... unit: c(27, 21, 29, 22)
+• A single observational unit is stored in multiple tables. 
+
+
+```{r}
+
+```
+
