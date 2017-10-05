@@ -90,11 +90,26 @@ small_df = singer_locations %>%
   filter(year != 0) #remove values that we don't know the year of 
 
 small_df %>% 
-  ggplot(aes(year, duration))+
+  ggplot(aes(year, artist_familiarity))+
   geom_point()
 
 ```
 
+Let's look at tidyr::gather
+
+gather(df, key, value, set of columns)
+
+```{r gather}
+
+small_df_long = small_df %>% 
+  gather(key = "Measure", value = "Units", artist_hotttnesss:duration)
+
+small_df_long %>% 
+  ggplot(aes(year, Units))+
+  geom_point() +
+  facet_wrap(~Measure, scales = "free_y") # SUPER HELPFUL CHAD TIP! 
+
+```
 
 
 
