@@ -1,0 +1,147 @@
+---
+title: "Homework 4"
+author: "Kaitlyn Harper"
+date: "October 5, 2017"
+output: 
+  github_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load, echo=TRUE}
+
+library(tidyverse)
+library(knitr)
+
+```
+
+## Part 1, Activity #1 - Cheatsheet for dealing with messy data
+
+Hi there! Welcome to my messy data cheatsheet. I got most of my information from [this](http://vita.had.co.nz/papers/tidy-data.pdf) paper, written by the one and only Hadley Wickham. He goes into a lot more detail and uses large data sets as examples, so definitely check it out if you find yourself itching for more information! 
+
+Okay then, let's get going!
+
+### What's the deal with "messy data"?
+Imagine this: You get to your office early one morning, keen to start your productive work day. The sun is shining, the birds are singing, and you're READY to explore that new data set your supervisor shared with you yesterday. Or so you think. As you sip your coffee, you open up the new data set in R and you see... this:
+```{r make_messy_data, echo=FALSE}
+
+breakfast = data.frame(subject = c(rep(LETTERS[1:5], each=3)),
+                        sex = c("m", "m", "m", "f", "f", "f","m", "m", "m", "f", "f", "f", "m", "m", "m"),
+                        food = c("muffin", "pancake", "waffle"),
+                        number = c(1,4,4,2,5,6,1,5,3,3,3,4,2,4,4),
+                        yummy = c(3,4,3,4,1,3,4,5,2,3,3,3,4,4,2))
+
+breakfast_messy = spread(breakfast, yummy, number) %>% 
+  select(-sex)
+
+breakfast_messy$subject = paste(breakfast$subject, breakfast$sex, sep="")
+
+knitr::kable(breakfast_messy)
+
+```
+
+This, my friends, is what we call messy data. Like, what is even going on here?? Oh wait- what's that? Ohhhh, luckily, there's a note on your desk with more information about the data! Unnnnluckily, it's in the handwriting of the first year undergrad that also works in your lab...
+
+*"HI! I collected these data because I wanted to be helpful! The study is on what breakfast foods people like versus how much of that food they actually eat -- neat huh?? I designed it myself. I collected the data from five people in res!"*
+
+You stop for a moment. 🙄 After taking a significant swig of coffee, you keep reading.
+
+*"The subject variable has the code (A-E) for each individual, as well as their sex (binary-f/m). The food obviously refers to the breakfast food. Each of the other columns ("1"-"5") represent how "yummy" the subjects thought the foods were (1=awful; 5=awesome) and the values represent the number of servings they normally eat of that specific food during a meal. Anyway, thanks for analyzing it for me! Have fun!"*
+
+Wow, yep, super fun. Thanks. 
+
+See, in a perfect world we would have beautiful data all the time, and analysing it would be a breeze. Unfortunately, we live in a world where Donald Trump became president of the United States (i.e. not perfect); thus, the data we're given isn't always clean and pristine. 
+
+There are **three things** that make data tidy, according to our good friend Hadley. Let's see if your data fit the criteria:  
+  - Each variable forms a column. *Nope, nowhere in there do I see the "number of servings" variable*  
+  - Each observation forms a row. *Okay, we're good with this one I think*  
+  - Each type of observational unit forms a table. *Nope, we need to separate subject and sex* 
+  
+Looks like we definitely have some cleaning to do. Alright, enough yabbering, get going on those analyses!
+
+<a href="#top">Back to top</a>
+
+### `Gather`  
+But what to do about these messy data? Doo-doo-DOO! :trumpet: Have no fear - `gather` is here! `Gather` is a really helpful function in the `tidyr` package that literally "gathers" up your data and collapses it into what are known as "key-value pairs". The `key` part takes each of the header (column) names that you specify and makes them into variables. The `value` part takes each of the messy values that are all spread out in the original "key" columns and **stacks them** on top of each other. Let's see it in action: 
+
+```{r breakfast_gather, echo=TRUE}
+
+(clean_breakfast = gather(breakfast_messy, yummy, number, -c(subject, food)))
+
+# yummy = key: the name of the NEW column that will include each OLD column headers that became a variable
+# number = value: the name of the NEW stacked-variable column
+# 3:7 = "..." : the columns to include in the gathering (reshaping)
+
+```
+
+Notice that the 1-5 columns are gone. Those values are now stacked on top of each other in a new "yummy" column. Additionally, all those values from the original 1-5 columns were put in a single variable called "number" (remember it's the number of servings they normally eat). The bummer part about our data is that we have a bunch of NAs hanging around from our original data set, so our \*new and improved\* data frame still looks at bit messy. But hey, we can deal with that. Let's see what our dplyr functions can do for us: 
+
+```{r clean_breakfast_table, echo=TRUE}
+
+clean_breakfast = 
+  clean_breakfast %>% 
+  na.omit() %>%                  # get rid of NAs
+  arrange(subject, food) %>%     # arrange data set by subject 
+  mutate(subject = substr(breakfast_messy$subject, start = 1, stop = 1),
+         sex = substr(breakfast_messy$subject, start = 2, stop = 2)) %>% 
+  
+  # substr: breaks apart a string of characters
+      # breakfast_messy$subject: variable to break apart
+      # start = __: where to start the break
+      # stop = __: where to end the break
+  
+  select(subject, sex, everything()) #rearrange the columns with sex toward the front (my personal preference)
+
+knitr::kable(clean_breakfast)
+
+```
+
+Oh dplyr, how I love thee :heart: But seriously, are you seeing this?! We now have a perfectly useful data set. Let's just quickly plot it and see if we can pick out any patterns! 
+
+<a href="#top">Back to top</a>
+
+### Breakfast patterns
+```{r plotBreakfast, echo=TRUE}
+
+label_names = c("muffin"="Muffin", "pancake"="Pancake", "waffle" = "Waffle", "f"="Female", "m"="Male")
+
+clean_breakfast %>% 
+  ggplot(aes(x=subject, y=number)) +
+  geom_bar(stat="identity", aes(fill=yummy)) +
+  facet_grid(sex~food, labeller = as_labeller(label_names)) +
+  labs(x="", y="Number of servings", title= "Number of servings of breakfast goodies")
+
+clean_breakfast %>% 
+  ggplot(aes(x=yummy, y=number))+
+  geom_point(aes(color=food))+
+  facet_wrap(~sex)
+
+### figure out how to change size of points by size
+
+```
+
+Without doing any statistics (and given we have the world's smallest sample size), it's pretty hard to tell if any patterns emerge. Let's say we leave those biostats for a different day... or never...
+
+<a href="#top">Back to top</a>
+
+### Spread
+While I have you here though, let's talk about the other helpful `tidyr` function: `spread`! Okay, so you cleaned your data set, but realized that you *actually* want to look more closely at the number of servings, grouped by yummy-ness (Note: this probably isn't the BEST example, since it's actually making the data messier, but it gets the point across).
+```{r spread, echo=TRUE}
+
+breakfast_spread = breakfast %>% 
+  spread(food, number, 0)
+
+# food = key: the variable that you want broken down ("spread" out) into different columns 
+# number = value: the values that will fill into your new columns
+# 0 = fill: the default for this is NULL (nothing), but if you add it in, it'll fill in instead of NAs
+
+kable(breakfast_spread)
+```
+
+So there you go! Both `gather` and `spread` are useful ways to tidy your data without getting a headache. Hooray for simple functions! 
+<a href="#top">Back to top</a>
+
+## Part 2, Activity __
