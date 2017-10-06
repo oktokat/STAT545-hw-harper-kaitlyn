@@ -25,9 +25,7 @@ Hi there! Welcome to my messy data cheatsheet. I got most of my information from
 Okay then, let's get going!
 
 ### What's the deal with "messy data"?
-Imagine this: You get to your office early one morning, keen to start your productive work day. The sun is shining, the birds are singing, and you're READY to explore that new data set your supervisor shared with you yesterday. Or so you think. As you sip your coffee, you open up the new data set in R and...
-
-You see this:
+Imagine this: You get to your office early one morning, keen to start your productive work day. The sun is shining, the birds are singing, and you're READY to explore that new data set your supervisor shared with you yesterday. Or so you think. As you sip your coffee, you open up the new data set in R and you see... this:
 ```{r messyData1, echo=FALSE}
 
 farts = data.frame(subject = c(rep(LETTERS[1:5], each=3)),
