@@ -134,7 +134,6 @@ breakfast_spread = breakfast %>%
 # 0 = fill: the default for this is NULL (nothing), but if you add it in, it'll fill in instead of NAs
 
 kable(breakfast_spread)
-kable(breakfast_spread2)
 ```
 
 So there you go! Both `gather` and `spread` are useful ways to tidy your data without getting a headache. Hooray for simple functions! 
@@ -142,4 +141,181 @@ So there you go! Both `gather` and `spread` are useful ways to tidy your data wi
 <a href="#top">Back to top</a>
 
 ## Part 2, Activity __
+
+```{r make_df, echo=TRUE}
+
+# Make df1
+  pets <- "
+      name, animal, responsibility,   age_died
+  Bella,     goat,    mom,            19
+  Hermie,    goat,    mom,            15
+  AllieMae,  dog,     dad,            8
+  Molly,     dog,     dad,            7
+  Velvet,    horse,   jessica,        27
+  Shelby,    bunny,   kaitlyn,        2
+  Juliet,    bunny,   kaitlyn,        8
+  KittyCat,  cat,     jessica,        16
+  Zoe,       cat,     kaitlyn,        15
+  Chubz,     hamster, travis,         3"
+
+# Read into proper format
+  pets <- read_csv(pets, trim_ws = TRUE, skip = 1)
+
+# Make df2
+  animal_LE <- "
+      animal,     lifeExp,  size
+      goat,        18,       mid
+      dog,         10,       mid
+      rabbit,      8,        small
+      cat,         15,       small
+      hamster,     2,        small"
+
+# Read into proper format  
+  animal_LE <- read_csv(animal_LE, trim_ws = TRUE, skip = 1)
+
+#  change numbers to integers 
+  pets$age_died = as.integer(pets$age_died)  
+  animal_LE$lifeExp = as.integer(animal_LE$lifeExp)
+
+knitr::kable(pets)
+knitr::kable(animal_LE)
+  
+```
+
+A couple intentional inconsistencies to point out:  
+  1. "horse" is missing from the animal_LE table
+  2. the pets table says "bunny" and the animal_LE says "rabbit"
+  
+We'll see how these two inconsistencies affect our join functions a bit later.
+
+### Mutating joins  
+**Definition:** add new variables to one table from matching rows in another table
+
+#### inner_join
+
+`inner_join` adds the columns from the second data table to the first data table listed within the arguments. Let's see how it works with our dfs:
+
+```{r IJ1, echo=TRUE}
+
+newtab = inner_join(pets, animal_LE, by="animal")
+
+knitr::kable(newtab)
+```
+
+Hmm... seems like there are a few animals missing. Notice that inner join **only adds rows that match** and does not include the other rows. Remember, there were two inconsistencies (horse, rabbit/bunny) between the two tables. Basically inner_join sees those and says to itself, "NOT-SAME-DON'T-CARE" (that's how I imagine R would sound if it had a voice), and leaves those three rows out of the new df.
+
+What happens when we switch the arguments in `inner_join`?
+
+```{r IJ2, echo=TRUE}
+
+newtab = inner_join(animal_LE, pets, by="animal")
+
+knitr::kable(newtab)
+
+```
+
+Basically the same thing, except the order of the variables is reversed. 
+
+<a href="#top">Back to top</a>
+
+#### left_join and right_join
+
+`left_join` adds the columns from one df to the other, retaining all of the rows in the first df. 
+
+```{r LJ1, echo=TRUE}
+
+newtab = left_join(pets, animal_LE, by="animal")
+
+knitr::kable(newtab)
+
+```
+
+So, unlike before when our table was reduced to 7 of the 10 animals, we now have all 10 animals with some missing data. When we switch the place of the dfs in the function, we get a bit different result:
+
+```{r LJ2, echo=TRUE}
+newtab = left_join(animal_LE, pets, by="animal")
+
+knitr::kable(newtab)
+```
+
+Notice that now we have eight observations (rows). What's missing? First, the "horse" animal isn't in there anymore. It's not in the animal_LE table, remember? Left_join ignores it since it doesn't match with anything in that table. Additionally, the two "bunny" observations were dropped and we have some missing data for the values that *should* be there.
+
+<a href="#top">Back to top</a>
+
+#### right_join
+
+`right_join` does essentially the same thing as `left_join`, with a bit of rearranging of the variables. Check it out:
+
+```{r RJ, echo=TRUE}
+
+newtab = right_join(pets, animal_LE, by="animal")
+
+knitr::kable(newtab)
+
+```
+
+You're still missing your horses, you still get missing data for the bunnies.
+
+<a href="#top">Back to top</a>
+
+#### full_join
+
+Our last mutating function is `full_join`, which 
+
+```{r FJ1, echo=TRUE}
+
+newtab = right_join(pets, animal_LE, by="animal")
+
+knitr::kable(newtab)
+
+```
+
+
+```{r FJ2, echo=TRUE}
+
+newtab = full_join(animal_LE, pets, by="animal")
+
+knitr::kable(newtab)
+
+```
+
+Notice that now we have ALL the observations, ALL the variables, ALL of EVERYTHING from both tables, smashed up into one table. I can imagine this would be particularly helpful when you can't figure out why you are losing data with `left_join`, `right_join`, or `inner_join`; when you put them all together, you can see that there's no lifeExp or size info for horses, and that you should change your variable name from rabbit to bunny (or vice versa) in order to keep going with your analyses.
+
+E**EXTRA EXTRA! READ ALL ABOUT IT!**  Now that we're on the topic, it's worth mentioning how you would actually change the name of rabbit to bunny in your animal_LE df. 
+
+```{r}
+
+# Use REPLACE function
+replace(animal_LE$animal,            # name of vector 
+        animal_LE$animal=="rabbit",  # name of thing you want to replace
+        "bunny")                     # name of new replacement thing
+
+# Use GSUB function
+gsub("rabbit",              # name of thing you want to replace
+     "bunny",               # name of new replacement thing
+     animal_LE$animal)      # name of vector
+
+```
+
+There are probably other ways to do it too, but these are two easy ways I've found! 
+
+<a href="#top">Back to top</a>
+
+### Filtering joins
+
+#### semi_join
+
+```{r}
+
+```
+
+<a href="#top">Back to top</a>
+
+#### anti_join
+
+```{r}
+
+```
+
+<a href="#top">Back to top</a>
 
