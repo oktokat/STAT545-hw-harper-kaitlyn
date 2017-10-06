@@ -13,8 +13,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r load, echo=TRUE}
 
-library(tidyverse)
-library(knitr)
+suppressMessages(library(tidyverse))
+suppressMessages(library(knitr))
 
 ```
 
@@ -25,7 +25,7 @@ Hi there! Welcome to my messy data cheatsheet. I got most of my information from
 Okay then, let's get going!
 
 ### What's the deal with "messy data"?
-Imagine this: You get to your office early one morning, keen to start your productive work day. The sun is shining, the birds are singing, and you're READY to explore that new data set your supervisor shared with you yesterday. Or so you think. As you sip your coffee, you open up the new data set in R and you see... this:
+Imagine this: You get to your office early one morning, keen to start your productive work day. The sun is shining, the birds are singing, and you are READY to explore that new data set your supervisor shared with you yesterday. Or so you think. As you sip your coffee, you open up the new data set in R and you see... this:
 ```{r make_messy_data, echo=FALSE}
 
 breakfast = data.frame(subject = c(rep(LETTERS[1:5], each=3)),
@@ -43,13 +43,13 @@ knitr::kable(breakfast_messy)
 
 ```
 
-This, my friends, is what we call messy data. Like, what is even going on here?? Oh wait- what's that? Ohhhh, luckily, there's a note on your desk with more information about the data! Unnnnluckily, it's in the handwriting of the first year undergrad that also works in your lab...
+This, my friends, is what we call messy data. Like, what is even going on here?? Oh wait- what's this? Ohhhh, luckily, there's a note on your desk with more information about the data! Unnnnluckily, it's in the handwriting of the first year undergrad that also works in your lab...
 
-*"HI! I collected these data because I wanted to be helpful! The study is on what breakfast foods people like versus how much of that food they actually eat -- neat huh?? I designed it myself. I collected the data from five people in res!"*
+*"HI! I collected these data because I wanted to be helpful! The study is on the yummy-ness of breakfast foods versus how much of that food they actually eat -- neat huh?? I designed it myself. I even got a sample size of five people!!"*
 
-You stop for a moment. 🙄 After taking a significant swig of coffee, you keep reading.
+You stop for a moment. 🙄 \*Breathe\* After taking a significant swig of coffee, you keep reading.
 
-*"The subject variable has the code (A-E) for each individual, as well as their sex (binary-f/m). The food obviously refers to the breakfast food. Each of the other columns ("1"-"5") represent how "yummy" the subjects thought the foods were (1=awful; 5=awesome) and the values represent the number of servings they normally eat of that specific food during a meal. Anyway, thanks for analyzing it for me! Have fun!"*
+*"The subject variable has the code (A-E) for each individual, as well as their sex (binary-f/m). The food obviously refers to the breakfast food. Each of the other columns ("1"-"5") represent how "yummy" the subjects thought the foods were (1=awful; 5=deeeelicious) and the values represent the number of servings they normally eat of that specific food during a meal. Anyway, thanks for analyzing it for me! Have fun!"*
 
 Wow, yep, super fun. Thanks. 
 
@@ -60,7 +60,7 @@ There are **three things** that make data tidy, according to our good friend Had
   - Each observation forms a row. *Okay, we're good with this one I think*  
   - Each type of observational unit forms a table. *Nope, we need to separate subject and sex* 
   
-Looks like we definitely have some cleaning to do. Alright, enough yabbering, get going on those analyses!
+Looks like we definitely have some tidying to do. Alright, enough yabbering, let's get going on those analyses!
 
 <a href="#top">Back to top</a>
 
@@ -107,6 +107,7 @@ Oh dplyr, how I love thee :heart: But seriously, are you seeing this?! We now ha
 ```{r plotBreakfast, echo=TRUE}
 
 label_names = c("muffin"="Muffin", "pancake"="Pancake", "waffle" = "Waffle", "f"="Female", "m"="Male")
+label_names2 = c("f"="Female", "m"="Male")
 
 clean_breakfast %>% 
   ggplot(aes(x=subject, y=number)) +
@@ -114,21 +115,15 @@ clean_breakfast %>%
   facet_grid(sex~food, labeller = as_labeller(label_names)) +
   labs(x="", y="Number of servings", title= "Number of servings of breakfast goodies")
 
-clean_breakfast %>% 
-  ggplot(aes(x=yummy, y=number))+
-  geom_point(aes(color=food))+
-  facet_wrap(~sex)
-
-### figure out how to change size of points by size
-
 ```
 
-Without doing any statistics (and given we have the world's smallest sample size), it's pretty hard to tell if any patterns emerge. Let's say we leave those biostats for a different day... or never...
+Without doing any statistics (and given we have the world's smallest sample size), it's pretty hard to tell if any patterns emerge. Let's say we leave those stats for a different day... or never...
 
 <a href="#top">Back to top</a>
 
 ### Spread
-While I have you here though, let's talk about the other helpful `tidyr` function: `spread`! Okay, so you cleaned your data set, but realized that you *actually* want to look more closely at the number of servings, grouped by yummy-ness (Note: this probably isn't the BEST example, since it's actually making the data messier, but it gets the point across).
+While I have you here though, let's talk about the other helpful `tidyr` function: `spread`! Okay, so you have your cleaned your data set, but on second thought realized that you *actually* want to group the data by food (make food each its own variable). Note: this probably isn't the BEST example, since it's actually making the data messier, but it gets the point across.
+
 ```{r spread, echo=TRUE}
 
 breakfast_spread = breakfast %>% 
@@ -139,9 +134,12 @@ breakfast_spread = breakfast %>%
 # 0 = fill: the default for this is NULL (nothing), but if you add it in, it'll fill in instead of NAs
 
 kable(breakfast_spread)
+kable(breakfast_spread2)
 ```
 
 So there you go! Both `gather` and `spread` are useful ways to tidy your data without getting a headache. Hooray for simple functions! 
+
 <a href="#top">Back to top</a>
 
 ## Part 2, Activity __
+
