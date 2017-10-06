@@ -118,17 +118,18 @@ Without doing any statistics (and given we have the world's smallest sample size
 <a href="#top">Back to top</a>
 
 ### Spread
-While I have you here though, let's talk about the other helpful `tidyr` function: `spread`! Okay, so you cleaned your data set, but realized that you actually want to look more closely at the frequency of fart, grouped by smelliness. (Note: this probably isn't the BEST example, since it's actually making the data messier, but it gets the point across).
+While I have you here though, let's talk about the other helpful `tidyr` function: `spread`! Okay, so you cleaned your data set, but realized that you *actually* want to look more closely at the frequency of fart, grouped by smelliness. (Note: this probably isn't the BEST example, since it's actually making the data messier, but it gets the point across).
 
 ```{r spread, echo=TRUE}
 
-farts %>% 
+fart_spread = farts %>% 
   spread(food, number, 0)
 
 # food = key: the variable that you want broken down ("spread" out) into different columns 
 # number = value: the values that will fill into your new columns
 # 0 = fill: the default for this is NULL (nothing), but if you add it in, it'll fill in instead of NAs
 
+kable(fart_spread)
 ```
 
 So there you go! Both `gather` and `spread` are useful ways to tidy your data without getting a headache. Hooray for simple functions! 
