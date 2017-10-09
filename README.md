@@ -25,6 +25,12 @@ Howdy! This is a private repo for STAT545 coursework of Kaitlyn Harper. Check ou
     + [all plots](https://github.com/oktokat/STAT545-hw-harper-kaitlyn/tree/master/hw03/hw03_files/figure-markdown_github-ascii_identifiers)
     + [HW03 instructions and rubric](http://stat545.com/hw03_dplyr-and-more-ggplot2.html)
 
+- Assignment #4
+    + [hw04 md](https://github.com/oktokat/STAT545-hw-harper-kaitlyn/blob/master/hw04/hw04.md)
+    + [hw04 Rmd](https://github.com/oktokat/STAT545-hw-harper-kaitlyn/blob/master/hw04/hw04.Rmd)
+    + [all plots](https://github.com/oktokat/STAT545-hw-harper-kaitlyn/tree/master/hw04/hw04_files/figure-markdown_github-ascii_identifiers)
+    + [HW04 instructions and rubric](http://stat545.com/hw04_tidy-data-joins.html)
+
 ## Helpful links 
 - [Click here](http://stat545.com/) for the main stat 545 page
 - [dplyr cheatsheet](https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf)
@@ -34,4 +40,6 @@ Howdy! This is a private repo for STAT545 coursework of Kaitlyn Harper. Check ou
 - [Class 5](https://github.com/oktokat/STAT545-hw-harper-kaitlyn/blob/master/Class%20notes/cm005-notes_and_exercises.rmd)
 - [Class 6](https://github.com/oktokat/STAT545-hw-harper-kaitlyn/blob/master/Class%20notes/cm006-notes_and_exercises.rmd)
 - [Class 7](https://github.com/oktokat/STAT545-hw-harper-kaitlyn/blob/master/Class%20notes/cm007-notes_and_exercises.rmd)
-- [Class 8](https://github.com/oktokat/STAT545-hw-harper-kaitlyn/blob/master/Class%20notes/cm008-notes_and_exercises.rmd) 
+- [Class 8](https://github.com/oktokat/STAT545-hw-harper-kaitlyn/blob/master/Class%20notes/cm008-notes_and_exercises.rmd)
+- [Class 9](https://github.com/oktokat/STAT545-hw-harper-kaitlyn/blob/master/Class%20notes/cm009-notes_and_exercises.Rmd)
+- [Class 10](https://github.com/oktokat/STAT545-hw-harper-kaitlyn/blob/master/Class%20notes/cm010-notes_and_exercises.Rmd)
