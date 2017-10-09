@@ -121,7 +121,7 @@ Without doing any statistics (and given we have the world's smallest sample size
 
 <a href="#top">Back to top</a>
 
-### Spread
+### `Spread`
 While I have you here though, let's talk about the other helpful `tidyr` function: `spread`! Okay, so you have your cleaned your data set, but on second thought realized that you *actually* want to group the data by food (make food each its own variable). Note: this probably isn't the BEST example, since it's actually making the data messier, but it gets the point across.
 
 ```{r spread, echo=TRUE}
@@ -136,11 +136,17 @@ breakfast_spread = breakfast %>%
 kable(breakfast_spread)
 ```
 
+So what we have now is basically the data grouped by the "yummy scale" - e.g. in rows 1, subject A rated muffins and waffles a 3 on the yummy scale, and they normally eat 1 muffin and 4 waffles during a normal meal. Like I said, this function in this case didn't necessarily make the data easier to read, but at least we have an example of what it does. 
+
 So there you go! Both `gather` and `spread` are useful ways to tidy your data without getting a headache. Hooray for simple functions! 
 
 <a href="#top">Back to top</a>
 
-## Part 2, Activity __
+## Part 2, Activity #2 - cheatsheet for join functions
+
+This cheatsheet will cover how to merge two data frames using a variety of `join` functions. First off, we have to make a couple new data frames. The first df is called `pets` and is a table of some of the pets my family owned when I was a kid. The table has the **name** of the pet, what type of **animal** it was, whose primary **responsibility** it was to take care of the pet, and the **age** that the animal died.  
+
+The second table is called `animal_LE` and contains the average **life expectancy** and relative **size** of a variety of animals. Let's make these dfs and I'll explain a bit more below...
 
 ```{r make_df, echo=TRUE}
 
@@ -182,8 +188,10 @@ knitr::kable(animal_LE)
   
 ```
 
-A couple intentional inconsistencies to point out:  
-  1. "horse" is missing from the animal_LE table
+Okay, first can I just say how friggin' cool it was to make a dataframe like that?? I've never seen it done before and it was so easy! It's fairly straightforward how it works, and I based mine off of Jenny Bryan's format [here](http://stat545.com/bit001_dplyr-cheatsheet.html#why-the-cheatsheet). Things to keep in mind: put commas between values, but not at the end of each line. Also I don't think you have to line up the variables in columns like I did, but my semi-OCD  brain needed to do that haha 
+
+So anyway, we've got a couple new data frames here. Here are a couple intentional inconsistencies worth pointing out:  
+  1. "horse" is missing from the animal_LE table  
   2. the pets table says "bunny" and the animal_LE says "rabbit"
   
 We'll see how these two inconsistencies affect our join functions a bit later.
@@ -254,17 +262,17 @@ knitr::kable(newtab)
 
 ```
 
-You're still missing your horses, you still get missing data for the bunnies.
+You're still missing your horse and you still get missing data for the rabbit.
 
 <a href="#top">Back to top</a>
 
 #### full_join
 
-Our last mutating function is `full_join`, which 
+Our last mutating function is `full_join`, which **keeps all rows and all information**.
 
 ```{r FJ1, echo=TRUE}
 
-newtab = right_join(pets, animal_LE, by="animal")
+newtab = full_join(pets, animal_LE, by="animal")
 
 knitr::kable(newtab)
 
@@ -281,7 +289,7 @@ knitr::kable(newtab)
 
 Notice that now we have ALL the observations, ALL the variables, ALL of EVERYTHING from both tables, smashed up into one table. I can imagine this would be particularly helpful when you can't figure out why you are losing data with `left_join`, `right_join`, or `inner_join`; when you put them all together, you can see that there's no lifeExp or size info for horses, and that you should change your variable name from rabbit to bunny (or vice versa) in order to keep going with your analyses.
 
-E**EXTRA EXTRA! READ ALL ABOUT IT!**  Now that we're on the topic, it's worth mentioning how you would actually change the name of rabbit to bunny in your animal_LE df. 
+**EXTRA EXTRA! READ ALL ABOUT IT!**  Now that we're on the topic, it's worth mentioning how you would actually change the name of rabbit to bunny in your animal_LE df. You can use a few different functions; I'll talk about `replace()` and `gsub()`.
 
 ```{r}
 
@@ -297,25 +305,66 @@ gsub("rabbit",              # name of thing you want to replace
 
 ```
 
-There are probably other ways to do it too, but these are two easy ways I've found! 
+There are probably a bunch of other ways to do it too, so please tell me if you know of any! 
 
 <a href="#top">Back to top</a>
 
-### Filtering joins
+### Filtering joins  
+Filtering joins are a bit different. This time, we aren't combining two data frames; instead, **we're subsetting/filtering one df based on the contents of another df.** There are two types of filtering joins: `semi_join` and `anti_join`. 
 
-#### semi_join
+#### semi_join  
 
-```{r}
+`semi_join` returns all rows from the first df where there are matching values in the second df, but **keeps only the columns from the first df**.
+
+```{r SJ, echo=TRUE}
+
+newtab = semi_join(animal_LE, pets, by="animal")
+
+knitr::kable(newtab)
 
 ```
+
+As you can see, the column names are the same as the first df - `animal_LE`. The other columns were dropped. You can also see that the rows are only the ones that match (i.e. no horse, bunny, nor rabbit). Let's see it in action when the `pets` df is listed first.
+
+```{r SJ2, echo=TRUE}
+
+newtab = semi_join(pets, animal_LE, by="animal")
+
+knitr::kable(newtab)
+
+```
+
+Again, you only have the rows that match (no horse, rabbit, bunny). But this time you also only have the columns from the `pets` df. 
 
 <a href="#top">Back to top</a>
 
 #### anti_join
 
-```{r}
+`anti_join` pretty much does the opposite of `semi_join`; it **keeps only the columns from the first df** but also **returns all rows from the first df that are _NOT_ matching with the second df**.
+
+```{r AJ1, echo=TRUE}
+
+newtab = anti_join(pets, animal_LE, by="animal")
+
+knitr::kable(newtab)
 
 ```
 
+In this case, all you get are horses and bunnies, since they're not in the `animal_LE` df. You *don't* get the rabbit, since it only keeps the rows from the FIRST df that don't match those in the second df. Soooo, you can imagine what's going to happen when we reverse the order of the dfs.
+
+```{r AJ2, echo=TRUE}
+newtab = anti_join(animal_LE, pets, by="animal")
+
+knitr::kable(newtab)
+
+```
+
+You guessed it - we only have the rabbit row, since this is the only non-matching value from the SECOND df that doesn't match the first df.
+
 <a href="#top">Back to top</a>
 
+### Reflection
+
+Okie doke! So there you have it. This homework took me a bit longer than I originally expected it to, mostly because I really had to play around with the `gather` and `spread` functions to figure out what they're useful for. TBH I'm probably still not 100% sure when you would use `spread`, but I think with different data it may be useful. Definitely helpful to know about, at least! I mostly used [Jenny Bryan's cheatsheet](http://stat545.com/bit001_dplyr-cheatsheet.html) to reference, as well as the `?` in Rstudio. Rstudio has a surprisingly good explanation of each of the joins in there! Oh, and yes, I realized I didn't do very much `kable` formatting this time, at least compared to hw03... honestly I was really just focused on figuring out the specific join and gather/spread functions so I didn't worry about much else.
+
+<a href="#top">Back to top</a>
