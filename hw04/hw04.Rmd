@@ -107,7 +107,6 @@ Oh dplyr, how I love thee :heart: But seriously, are you seeing this?! We now ha
 ```{r plotBreakfast, echo=TRUE}
 
 label_names = c("muffin"="Muffin", "pancake"="Pancake", "waffle" = "Waffle", "f"="Female", "m"="Male")
-label_names2 = c("f"="Female", "m"="Male")
 
 clean_breakfast %>% 
   ggplot(aes(x=subject, y=number)) +
