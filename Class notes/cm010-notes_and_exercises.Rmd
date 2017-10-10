@@ -111,6 +111,85 @@ small_df_long %>%
 
 ```
 
+```{r gather_again, echo=TRUE}
+
+hfd_y = singer_locations %>% 
+  select(year, duration:artist_familiarity) %>%  #### THIS IS IMPORTANT - SEE BELOW
+  gather(key = "Measures", value = "My_value", 
+         duration:artist_familiarity)
+
+hfd_y %>% 
+  filter(year > 1950) %>% 
+  ggplot(aes(year, My_value))+
+  geom_point() + 
+  facet_wrap(~Measures, scales = "free_y") # SUPER HELPFUL CHAD TIP! 
+
+# can also do "free" to free up both axes!! 
+```
+
+```{r spread}
+
+hfd_spread = hfd_y %>% 
+  spread(Measures, My_value)
+
+```
+^ Okay, so this doesn't work because you get a bunch of duplicates for 2007. IF you include the ID numbers (instead of selecting them out), spread will work.
+
+```{r}
+
+hfd_y = singer_locations %>% 
+  select(year, duration:artist_familiarity) %>%  #### THIS IS THE STEP THAT MESSES YOU UP
+  gather(key = "Measures", value = "My_value", 
+         duration:artist_familiarity)
+
+hfd_y_NEW = hfd_y = singer_locations %>% 
+  gather(key = "Measures", value = "My_value", 
+         duration:artist_familiarity)
+
+### Note that we didn't select out any columns, so we have all the information still
+
+hfd_y_NEW2 = singer_locations %>% 
+  select(year, song_id, duration:artist_familiarity) %>%  ### This also works - just include the ID! 
+  gather(key = "Measures", value = "My_value", 
+         duration:artist_familiarity)
+
+hfd_spread_NEW = hfd_y_NEW %>% 
+  spread(Measures, My_value)
+
+hfd_spread_NEW2 = hfd_y_NEW2 %>% 
+  spread(Measures, My_value)
+
+### voila! it works! 
+
+rm(hfd_spread_NEW, hfd_spread_NEW2, hfd_y_NEW2, hfd_y)
+
+```
+
+
+### Reshape2 does about the same thing that tidyr does
+
+```{r reshape2, echo=TRUE}
+
+library(reshape2)
+
+```
+
+`dcast` is similar to `gather`
+`melt` is similar to `spread`
+
+```{r }
+
+test = hfd_y_NEW %>% 
+  dcast(year ~ Measures,        # number of rows, then which columns to spread (i.e. values in Measures)
+        value.var = "My_value", # what values you use for the next argument
+        fun.aggregate = var,    # this is what you're finding with the aggregate values from the argument above
+                                  # IF there are multiple rows for a year
+        na.rm=TRUE) %>%         # ignore NAs 
+  na.omit()
+
+```
+With this function, we are creating one row for each value in the year column, and one column for each different value in the Measures column (duration, hotness, familiarity)
+
 
 
 
