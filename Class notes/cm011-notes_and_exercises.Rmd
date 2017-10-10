@@ -43,6 +43,18 @@ class(plot1) #gg, ggplot
 typeof(`%>%`) #closure
 class(`%>%`) #function
 
+typeof(`=`) #special
+class(`=`) #function
+
+### Writing functions in weird ways! 
+### This goes into HOW r works! R is a programming language!
+
+`=` (y, 13) # y = 13
+
+`==` (13, 12) #13==12 ---> FALSE
+
+`+` (1,1) # 1+1 = 2
+
 ```
 
 
