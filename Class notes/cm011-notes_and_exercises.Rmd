@@ -1,0 +1,50 @@
+---
+title: "Class 11 - Oct 10"
+author: "Kaitlyn Harper"
+date: "October 10, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+library(tidyverse)
+library(devtools)
+install_github("JoeyBernhardt/singer")
+
+library(singer)
+
+data("singer_locations")
+
+hfd_y = singer_locations %>% 
+  gather(key = "Measures", value = "My_value", 
+         duration:artist_familiarity)
+
+```
+
+### Exploring the type of and class of things
+
+```{r}
+
+typeof(hfd_y) #list
+class(hfd_y) #tbl_df, tbl, data.frame
+
+plot1 = hfd_y %>% 
+  ggplot(aes(x=Measures, y=My_value))+
+           geom_point()
+
+typeof(plot1) #list
+class(plot1) #gg, ggplot
+
+### Note: if you want to find the typeof/class of special objects, you need to backtick it!
+typeof(`%>%`) #closure
+class(`%>%`) #function
+
+```
+
+
+
+
