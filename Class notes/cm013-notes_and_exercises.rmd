@@ -345,8 +345,9 @@ Note: there's also `scale_colour_gradientn` and `scale_fill_gradientn` for "`n`-
 Let's try the qualitative plot:
 
 ```{r}
-my_cols <- c("red", "blue", "green", "wheat3", "orange")
+my_cols <- c("red", "blue", "green", "wheat", "orange")
 p1 + scale_fill_manual(values=my_cols)
+
 # You can even name the colour vector according the levels:
 names(my_cols) <- c("Europe", "Americas", "Africa", "Asia", "Oceania")
 p1 + scale_fill_manual(values=my_cols)
@@ -361,7 +362,7 @@ p2 + scale_colour_gradient(low="black", high="red")
 The diverging plot:
 
 ```{r}
-p3 + scale_colour_gradient2(low="blue", mid="white", high="red")
+p3 + scale_colour_gradient2(low="azure4", mid="white", high="red4")
 ```
 
 ### 3.2 Identifying Colours in R
@@ -369,7 +370,7 @@ p3 + scale_colour_gradient2(low="blue", mid="white", high="red")
 How would anyone know that R understands `wheat3`? R has lots of colours pre-defined -- see them all by running `colors()`:
 
 ```{r}
-colors() %>% head
+colors() %>% head(20)
 ```
 
 Or, check out Jenny's cheatsheet with [white background](http://stat545.com/img/r.col.white.bkgd.pdf) or [black background](http://stat545.com/img/r.col.black.bkgd.pdf).
@@ -398,8 +399,8 @@ Of note: the qualitative scales consist of colours of equal "importance" -- not 
 Let's display and print the hexadecimal codes of the `Dark2` palette -- the first 5. Note that we need to specify the number of colours from the palette!
 
 ```{r}
-display.brewer.pal(n=5, "Dark2")
-brewer.pal(n=5, "Dark2")
+display.brewer.pal(n=7, "Dark2")
+brewer.pal(n=7, "Dark2")
 ```
 
 Go ahead and put this into the qualitative plot:
@@ -435,7 +436,47 @@ p3 + scale_colour_viridis()
 
 1. Make histograms of Life Expectancies, facetted by `continent`. Paint the histogram by continent, using a colour palette of your choice from `RColorBrewer`.
 
+```{r lifeExp_coloured, echo=TRUE}
+
+gapminder %>% 
+ggplot(aes(x=lifeExp, fill=continent)) +
+  geom_histogram(aes(y=..density..)) +     #### ..density.. will give you the proportion instead of the count!!!!
+  facet_wrap(~continent) +
+  scale_fill_brewer(palette = "Dark2")
+
+
+```
+
+
 2. Make a trend plot/spaghetti plot of life Expectancies over time for each country. Highlight Rwanda in red (ensure the legend shows this, too).
+
+```{r}
+
+gapminder %>% 
+  ggplot(aes(x=year, y=lifeExp, alpha=0.2)) +
+  geom_line(aes(group=country)) +
+  geom_line(data=gapminder[which(gapminder$country=="Rwanda"),], aes(color="red", size=2))
+
+
+
+
+colour_layer = scale_colour_manual("",                                           ### NO LEGEND TITLE
+                                   labels = c("Other countries", "Rwanda"),
+                                   values = c("black", "red")
+)
+
+gapminder %>%
+  ggplot(aes(year, lifeExp)) +
+  geom_line(aes(group=country, 
+                colour=country=="Rwanda",
+                alpha=country=="Rwanda")) +
+  colour_layer +
+  scale_alpha_discrete(range=c(0.2, 1),
+                       guide=FALSE) ### GETS RID OF SECOND LEGEND
+  
+
+```
+
 
 BONUS: make all countries besides Rwanda have alpha transparency of 0.2, and Rwanda be non-transparent.
 
