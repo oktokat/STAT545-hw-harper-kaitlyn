@@ -1,0 +1,39 @@
+---
+title: "Homework 5"
+author: "Kaitlyn Harper"
+date: "October 18, 2017"
+output: 
+  github_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load, echo=TRUE}
+
+suppressMessages(library(tidyverse))
+suppressMessages(library(knitr))
+
+library(forcats)
+library(singer)
+library(gapminder)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<a href="#top">Back to top</a>
