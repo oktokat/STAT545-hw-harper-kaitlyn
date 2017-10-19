@@ -288,15 +288,15 @@ rm(small.1)
   labs(x = "Sex", title = "Number of individuals born with siblings, by sex"))
     
 
-ggsave("/Users/kaitlynharper/Google Drive/UBC/Fall 2017/STAT 545/STAT545-hw-harper-kaitlyn/hw05/paritybar.pdf", plot = parity.bar,
+ggsave("/Users/kaitlynharper/Google Drive/UBC/Fall 2017/STAT 545/STAT545-hw-harper-kaitlyn/hw05/hw05_files/figure-markdown_github-ascii_identifiers/paritybar.pdf", plot = parity.bar,
        width = 5, height = 5)
 
-ggsave("/Users/kaitlynharper/Google Drive/UBC/Fall 2017/STAT 545/STAT545-hw-harper-kaitlyn/hw05/paritybar2.pdf", plot = parity.bar)
+ggsave("/Users/kaitlynharper/Google Drive/UBC/Fall 2017/STAT 545/STAT545-hw-harper-kaitlyn/hw05/hw05_files/figure-markdown_github-ascii_identifiers/paritybar2.pdf", plot = parity.bar)
 
 ```
 
-![See plot1 here!](/Users/kaitlynharper/Google Drive/UBC/Fall 2017/STAT 545/STAT545-hw-harper-kaitlyn/hw05/paritybar2.pdf)
+![See plot1 here!](/Users/kaitlynharper/Google Drive/UBC/Fall 2017/STAT 545/STAT545-hw-harper-kaitlyn/hw05/hw05_files/figure-markdown_github-ascii_identifiers/paritybar.pdf)
 
-![See plot2 here!](/Users/kaitlynharper/Google Drive/UBC/Fall 2017/STAT 545/STAT545-hw-harper-kaitlyn/hw05/paritybar.pdf)
+![See plot2 here!](/Users/kaitlynharper/Google Drive/UBC/Fall 2017/STAT 545/STAT545-hw-harper-kaitlyn/hw05/hw05_files/figure-markdown_github-ascii_identifiers/paritybar2.pdf)
 
 
