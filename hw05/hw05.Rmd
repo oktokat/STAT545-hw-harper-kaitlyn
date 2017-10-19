@@ -20,6 +20,7 @@ Hi y'all!! Thanks for checking out my hw assignment #5. For this assignment, I d
 suppressMessages(library(knitr))
 library(forcats)
 library(cowplot)
+library(RColorBrewer)
 
 ### Load data and packages
 suppressMessages(source("/Users/kaitlynharper/Google Drive/UBC/Fall 2017/SPPH 501/SPPH501/Code/zvitambo_load.R"))
@@ -54,7 +55,7 @@ Just to clarify:
 
 ## Factor management
 
-### Change integer variables to factors  
+### Change integer variables to factors (required)  
 There are a bunch of variables in this data set that need to be changed to factor. I'm going to do this by using the dplyr function `mutate_at` with the base `factor` argument. See below for a more detailed explanation!
 
 ```{r changeInt, echo=TRUE}
@@ -83,7 +84,38 @@ I couldn't figure out how to use`forcats` to change multiple columns at once, bu
 
 <a href="#top">Back to top</a>
 
-### Condense hospital visits
+### Drop factor levels (required)  
+
+Within this data set, there is a "type of birth" variable (a05) that has 6 different levels:
+
+```{r}
+levels(stunted$a05)
+```
+
+However, not all of these levels are used in the data set. Check it out:
+
+```{r}
+
+table(stunted$a05)
+
+```
+
+Fortunately, `fct_drop` can help us get rid of the pesky "forceps" level so we're left only with the five useful levels.
+
+```{r fct_drop, echo=TRUE}
+
+stunted$a05 = fct_drop(stunted$a05) #remove unused levels
+
+levels(stunted$a05) #check levels
+
+```
+
+Voila! Easy peasy. Now we have only the levels we need! 
+
+<a href="#top">Back to top</a>
+
+### Condense hospital visits (extra)  
+
 The number of times an individual went to the hospital between each growth measurement was recorded in the `c.visits.i` variable. There was a pretty wide variety, as seen here:
 
 ```{r visitsTable, echo=TRUE}
@@ -110,7 +142,7 @@ table(stunted$visits)
   
 <a href="#top">Back to top</a>  
   
-### Count the entries in a factor 
+### Count the entries in a factor (extra)  
 To count how many entries you have in each level of a factor, you can use `fct_count`. In this example, I'm counting how many entries are in each level of "mother's age" (i.e. how old the mother was when the baby was born). First I'll change that variable into a factor, and then I'll create a new table showing only the levels and the number of entries.
 
 
@@ -137,7 +169,7 @@ table(stunted$m.age)
 
 <a href="#top">Back to top</a>
 
-### Reorder the levels of `idno` based on `zlen` variable  
+### Reorder the levels of `idno` based on `zlen` variable (required)  
 In this example I'll reorder the subject ID entries based on a continuous variable (zlen). Check out the explanation below for more info.
 
 ```{r reorder_idno_zlen, echo=TRUE}
@@ -163,10 +195,10 @@ rm(lowest, low_zlen_factor) # clean up environment
 
 <a href="#top">Back to top</a>
 
-### Explore `arrange`
+### Explore `arrange` (required)
 
 **Does merely arranging the data have any effect on a figure?**  
-In order to illustrate this point, I'm going to reduce the data frame down to only one measurement per individual. To do this, I'm going to only keep the minimum height (zlen) value for each individual and drop the others.
+In order to illustrate this point, I'm going to reduce the data frame down to only one measurement per individual. To do this, I'm going to only keep the minimum height (zlen) value for each individual and drop the others. Then I'm going to plot parity (number of siblings) versus mother's age.
 
 ```{r reducedDF, echo=TRUE}
 
@@ -175,25 +207,37 @@ small = stunted %>%
   group_by(idno) %>% 
   filter(zlen == min(zlen))
 
-head(small)
+### Plot the data (no arranging)
+small %>% 
+  na.omit() %>% 
+  ggplot(aes(x=parity, y=m.age)) +
+  geom_jitter() +
+  ggtitle("Number of siblings by mother's age, not arranged")
 
 ```
 
+Alright, now let's look at what `arrange` does when you plot it:
 
 ```{r plot_arrange, echo=TRUE}
 
-small %>% 
-  na.omit() %>% 
-  arrange(parity) %>% 
-  head()
+# Arrange and view data (head)
+small %>%       
+  na.omit() %>%              # remove NAs
+  arrange(parity) %>%        # arrange by parity levels
+  select(idno, parity) %>%   # select only the idno and parity (for viewing purposes)
+  head()                     # view new data set, arranged by parity levels
 
+# Plot arranged data
 small %>% 
   na.omit() %>% 
   arrange(parity) %>% 
   ggplot(aes(x=parity, y=m.age)) +
-  geom_jitter()
+  geom_jitter() +
+  ggtitle("Number of siblings by mother's age, arranged")
 
 ```
+
+So you can see that even though the data are arranged now, it doesn't really do anything to the plot. Let's see what happens when you actually relevel the factors based on a different variable:  
 
 ```{r}
 
@@ -205,37 +249,46 @@ ggplot(aes(x = fct_reorder(parity, m.age), y = m.age)) +
 
 ```
 
+Ahh, much nicer. This just goes to show that releveling the factors can make our plots look more organized! This gets at what Tamara was talking about in her lecture as well - I can see how if you have many different factors, it would be helpful to relevel them in order to organize them in a way that makes the plot easier to read.
+
 <a href="#top">Back to top</a>
 
 ## Write (and read) `small` df to file
+
+In this section, I'm going to take my `small` data frame that I made and write it into a new csv file. Then I'm going to read that csv back into my Rmd. 
 
 ```{r write_csv, echo=TRUE}
 
 # write to file
 write.csv(small,"/Users/kaitlynharper/Google Drive/UBC/Fall 2017/STAT 545/STAT545-hw-harper-kaitlyn/hw05/data/stunted_small.csv")
 
-rm(small)
-
 small.1 = read.csv("/Users/kaitlynharper/Google Drive/UBC/Fall 2017/STAT 545/STAT545-hw-harper-kaitlyn/hw05/data/stunted_small.csv", header=T)
 
-kable(head(small.1))
+kable(head(small), format = "html", caption = "Original df")
+
+kable(head(small.1), format = "html", caption = "Newly written df")
 
 ```
 
+Uh oh! Something's weird about the new df I wrote in. That's because I'm missing a key argument: `row.names`. This argument is used if your row names get saved as a new column. `row.names=1` will take the **first** column and turn it into your row names (`row.names=2` will take the **second** column, etc.)
 
 ```{r read_csv2, echo = TRUE}
 
 small.2 = read.csv("/Users/kaitlynharper/Google Drive/UBC/Fall 2017/STAT 545/STAT545-hw-harper-kaitlyn/hw05/data/stunted_small.csv", header=T, row.names = 1)
 
-kable(head(small.2))
+kable(head(small.2), format = "html", caption = "FIXED newly written df")
 
 rm(small.1)
 
 ```
 
+K great! We've successfully wrote and read a file to and from R! Hooray! :tada:
+
 <a href="#top">Back to top</a>
 
 ## Visualization design
+
+Alright, lastly let's make a nice looking plot that uses some of the features that Tamara talked about in her lecture. BUT FIRST, let's attempt to make a function! 
 
 ```{r}
 
@@ -252,8 +305,15 @@ rm(small.1)
     filter(idno %in% IDsample)
  }
 
-
 ```
+
+OoOoOoOo yayyyy it worked! 👍 Since this is covered in 547 I'm not going to go into a TON of detail, but I'll give you at least a little outline of what I did:
+
+  - assigned the function a name (`make_random_samples`)
+  - Created a new variable (`IDsample`) that took a random sample of `16` individuals from all the rows (`nrow(df)`) in the first column (`1`) in my data frame using the `sample` function. The reason why it says `df` is so that I'll know that I can stick any data frame in this function in the future and the function will work. 
+  - Lastly, I created a new df called `random_sample` that only contains the ID numbers (`idno`) in the new `IDsample` variable.
+  
+So I know this wasn't the most informative explanation, but hopefully it'll give the gist of what I did. So next I'll this function and apply it to the `stunted` data frame. Then I'll filter out only the individuals that have no siblings (i.e. "primi" individuals) and plot their growth over time.
 
 ```{r}
 
@@ -275,7 +335,13 @@ rm(small.1)
   
 ```
 
+Cool! I tried to apply some of Tamara's principles in this plot, including connecting the dots (not just doing geom_point) to make the connection more clear over time. I also used two distinct colours to show the difference between males and females. There were lots of other variables I could have put into the plot, but I tried to limit it so that our puny human minds wouldn't get all jumbled up in its complexity :wink:
+
+<a href="#top">Back to top</a>
+
 ## Writing figures to file
+
+Lastly, I made one more simple plot and saved it as a pdf using `cowplot`'s `ggsave` function. 
 
 ```{r write2file, echo=TRUE}
 
@@ -285,7 +351,8 @@ rm(small.1)
       na.omit() %>% 
       ggplot(aes(x = factor(sex, labels = c("Female", "Male")), fill = parity)) +
       geom_bar() + 
-  labs(x = "Sex", title = "Number of individuals born with siblings, by sex"))
+  labs(x = "Sex", title = "Number of individuals born with siblings, by sex")) + 
+  scale_fill_manual(values=brewer.pal(n=3, "Dark2"))
     
 
 ggsave("/Users/kaitlynharper/Google Drive/UBC/Fall 2017/STAT 545/STAT545-hw-harper-kaitlyn/hw05/hw05_files/figure-markdown_github-ascii_identifiers/paritybar.pdf", plot = parity.bar,
@@ -298,5 +365,15 @@ ggsave("/Users/kaitlynharper/Google Drive/UBC/Fall 2017/STAT 545/STAT545-hw-harp
 ![See plot1 here!](/Users/kaitlynharper/Google Drive/UBC/Fall 2017/STAT 545/STAT545-hw-harper-kaitlyn/hw05/hw05_files/figure-markdown_github-ascii_identifiers/paritybar.pdf)
 
 ![See plot2 here!](/Users/kaitlynharper/Google Drive/UBC/Fall 2017/STAT 545/STAT545-hw-harper-kaitlyn/hw05/hw05_files/figure-markdown_github-ascii_identifiers/paritybar2.pdf)
+
+I experimented with changing the size of the plot, and it seems like the smaller your dimensions, the bigger everything shows up, which is good to know. I'm not *exactly* sure this^ is how it was supposed to end up when we embedded them into our md, but it's kind of cool!
+
+<a href="#top">Back to top</a>
+
+## Reflection
+
+Whew! This assignment was a doozy for me! I felt like navigating all the functions in `forcats` was difficult. I mostly used the [cran.r-project pdf](https://cran.r-project.org/web/packages/forcats/forcats.pdf) for information on each of the specific functions, which helped a lot. I enjoyed looking at a new set of data, even though I found it to be harder to adapt all of the various tasks to a data set that I don't know quite as well as the gapminder set (I know, I know, I *could have* used the gapminder set... I was just trying to give myself a challenge!!!) I also tried to experiment with some things like writing functions, which I've always heard were really helpful but haven't really tried doing myself. I used the links from the [stat 547 page](http://stat545.com/cm102_writing-functions.html) to help me out with that (since I sadly won't be able to continue on with 547 :cry:) Writing the figures and df to files didn't seem like a big issue to me. The biggest problem is that I moved some stuff around manually (i.e. created a new folder and put the files into it), which I later realized was a really bad idea. I had to go back and change a bunch of my pathways so that things would run properly again. One thing I want to continue working on in the future is using the different colour schemes presented in class. I looked up the R color names and used those, but only used Color Brewer once (which turned out nicely, if I do say so myself). Anyway, thanks for making it through the whole assignment and happy end-of-stat545! 
+
+Cheers!
 
 
