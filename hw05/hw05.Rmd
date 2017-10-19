@@ -2,7 +2,7 @@
 title: "Homework 5"
 author: "Kaitlyn Harper"
 date: "October 18, 2017"
-output: 
+output:  
   github_document:
     toc: true
 ---
@@ -13,24 +13,25 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction: zvitambo data set
 
-Hi y'all!! Thanks for checking out my hw assignment #5. For this assignment, I decided to branch out a bit and use a new data set. These data come from a big longitudinal study in Zimbabwe that was studying growth of children. In this first chunk, I'm going to use the`source` function to load the data set. Basically the `source` function finds another file (in this case, another R script) and runs it. I used this because I had to do a little removing of sensitive information before using this data set for class, so I did all of that in another R script. Okie doke, let's take a look at what we've got! 
+Hi y'all!! Thanks for checking out my hw assignment #5. For this assignment, I decided to branch out a bit and use a new data set. These data come from a big longitudinal study in Zimbabwe and looks at linear growth (height) of infants. In the chunk below, I'm going to use the`source` function to load the data set. Basically the `source` function finds another file (in this case, another R script) and runs it. I had to do some removing of sensitive information before using this data set for class, so I did all of that in another R script. Okie doke, let's take a look at what we've got! 
 
 ```{r load, echo=TRUE}
 
 suppressMessages(library(knitr))
 library(forcats)
+library(cowplot)
 
 ### Load data and packages
 suppressMessages(source("/Users/kaitlynharper/Google Drive/UBC/Fall 2017/SPPH 501/SPPH501/Code/zvitambo_load.R"))
 
 ### Remove sensitive information and most variables
-source("/Users/kaitlynharper/Google Drive/UBC/Fall 2017/STAT 545/STAT545-hw-harper-kaitlyn/hw05/clean_zvitambo_data.R")
+source("/Users/kaitlynharper/Google Drive/UBC/Fall 2017/STAT 545/STAT545-hw-harper-kaitlyn/hw05/data/clean_zvitambo_data.R")
 
 glimpse(stunted)
 
 ```
 
-These variables might not make much sense, so here's a little metadata df to help you out:
+These variables can be a little confusing, so here's the metadata to help you out:
 ```{r metadata, echo=TRUE}
 
 metadata = data.frame(variable = names(stunted),
@@ -54,7 +55,7 @@ Just to clarify:
 ## Factor management
 
 ### Change integer variables to factors  
-There are a bunch of variables in this data set that need to be changed to factor. Let's see how it goes:
+There are a bunch of variables in this data set that need to be changed to factor. I'm going to do this by using the dplyr function `mutate_at` with the base `factor` argument. See below for a more detailed explanation!
 
 ```{r changeInt, echo=TRUE}
 
@@ -73,8 +74,8 @@ rm(cols)
 
 ```
 
-*A little explanation:*  
-`mutate_at` is a helpful function that allows you to mutate multiple columns at the same time. Basically what I did was create a vector of column names (`cols`) for the variables that I want to change from integer to factor. Then I said, "hey stunted, mutate all of these columns by changing them all to factors!" <-- I did this using the `funs(factor(.))` argument. The `.` basically says, "do this function to all the columns you specified in the previous argument". I got the code for this from [stack overflow](https://stackoverflow.com/questions/33180058/coerce-multiple-columns-to-factors-at-once).  
+*Explanation:*  
+`mutate_at` is a helpful function that allows you to mutate multiple columns at the same time. Basically what I did was create a vector of column names (`cols`) for the variables that I want to change from integer to factor. Then I said, "hey stunted df, mutate *all* of these columns by changing them all to factors!" <-- I did this using the `funs(factor(.))` argument. The `.` basically says, "do this function to all the columns you specified in the previous argument". I got the idea for this from [stack overflow](https://stackoverflow.com/questions/33180058/coerce-multiple-columns-to-factors-at-once).  
 
 Oh, also, that little `rm(cols)` function just gets rid of the new object (`cols`) that I created. I use this a ton just to keep my environment uncluttered, since in these hw assignments I tend to make a lot of new variables and it's hard to keep track of them all if they're all sitting there in the enviro.
 
@@ -83,7 +84,7 @@ I couldn't figure out how to use`forcats` to change multiple columns at once, bu
 <a href="#top">Back to top</a>
 
 ### Condense hospital visits
-The number of times an individual went to the hospital between growth measurement was recorded in the `c.visits.i` variable. There was a pretty wide variety, as seen here:
+The number of times an individual went to the hospital between each growth measurement was recorded in the `c.visits.i` variable. There was a pretty wide variety, as seen here:
 
 ```{r visitsTable, echo=TRUE}
 
@@ -91,7 +92,7 @@ table(stunted$c.visits.i)
 
 ```
 
-As you can see, there were a lot of individuals who had between 0-2 visits, and then it tapers off toward the higher number of visits. Let's use `fct_lump` to condense the number of visits into just four categories: 0, 1, 2, and 3+.
+As you can see, there were a lot of individuals who have between 0-2 visits, and then it tapers off toward the higher number of visits. I'm going to use `fct_lump` to condense the number of visits into just four categories: 0, 1, 2, and 3+.
 
 ```{r fct_lump, echo=TRUE}
 
@@ -103,72 +104,199 @@ table(stunted$visits)
 
 ```
 
-**A little explanation:**  
+**Explanation:**  
   - `n=3` conserves only the top three categories and lumps everything else into the "other" category  
   - `other_level = "3+"` renames the other level to "3+" so that it doesn't just say "other"
+  
+<a href="#top">Back to top</a>  
   
 ### Count the entries in a factor 
 To count how many entries you have in each level of a factor, you can use `fct_count`. In this example, I'm counting how many entries are in each level of "mother's age" (i.e. how old the mother was when the baby was born). First I'll change that variable into a factor, and then I'll create a new table showing only the levels and the number of entries.
 
 
-```{r}
+```{r fct_count_mothersAge, echo=TRUE}
 
 mothersAge = stunted %>% 
-  mutate(m.age.fact = factor(m.age))
+  mutate(m.age.fact = factor(m.age)) #change m.age to factor
 
-mothersAge = fct_count(mothersAge$m.age.fact, sort=TRUE) #
+mothersAge = fct_count(mothersAge$m.age.fact, sort=TRUE) #Count how many entries are in each and SORT them in descending order
 
 kable(head(mothersAge, 10)) #only showing the first 10 levels 
 
-rm(mothersAge)
+rm(mothersAge) #clean up environment
 
 ```
 
+It seems like `fct_count` is a nicer, cleaner version of the `table` function in base R (see below). It lets you put it in a nice format and arrange them in some sort of order. So while `table` is probably faster, `fct_count` seems handy when you want to present data in a specific way.
 
-### Reorder the levels of `idno` based on `zlen` variable
-```{r}
+```{r table_m_age, echo=TRUE}
+
+table(stunted$m.age)
+
+```
+
+<a href="#top">Back to top</a>
+
+### Reorder the levels of `idno` based on `zlen` variable  
+In this example I'll reorder the subject ID entries based on a continuous variable (zlen). Check out the explanation below for more info.
+
+```{r reorder_idno_zlen, echo=TRUE}
 
 low_zlen_factor = fct_reorder(stunted$idno, stunted$zlen, min) %>% 
   levels() %>% 
   head()
 
 lowest = stunted %>% 
-  filter(idno %in% low_zlen_factor) %>% 
-  group_by(idno) %>% 
-  filter(zlen == min(zlen)) %>% 
-  select(idno, zlen)
+  filter(idno %in% low_zlen_factor) %>%         # Keep only the id numbers in low_zlen_factor
+  group_by(idno) %>%
+  filter(zlen == min(zlen)) %>%                 # Keep only the lowest of the zlen
+  select(idno, zlen)                            # Select these two variables for easy viewing
 
 kable(lowest)
 
-rm(lowest, low_zlen_factor)
+rm(lowest, low_zlen_factor) # clean up environment
 
 ```
 
-### Explore `arrange`
-
-**Does merely arranging the data have any effect on a figure?**
-
-**What effect does reordering a factor, coupled with arrange, have on a figure?**
-
-
-
-
-## Write `stunted` df to file
-
-### 
-
-### 
-
-
-
-
-
-
-
-
-
-
-
-
+**Explanation:**  
+`fct_reorder` allows you to reorder the levels of a factor (first argument: `stunted$idno`) based on a different variable (second argument: `stunted$zlen`), using a specific function (third argument:`min`). I chose to use `min` for the function because it seemed the most applicable; I can now easily see which subjects have the worst growth patterns, AND make nice plots from it! 
 
 <a href="#top">Back to top</a>
+
+### Explore `arrange`
+
+**Does merely arranging the data have any effect on a figure?**  
+In order to illustrate this point, I'm going to reduce the data frame down to only one measurement per individual. To do this, I'm going to only keep the minimum height (zlen) value for each individual and drop the others.
+
+```{r reducedDF, echo=TRUE}
+
+### Create reduced data frame
+small = stunted %>% 
+  group_by(idno) %>% 
+  filter(zlen == min(zlen))
+
+head(small)
+
+```
+
+
+```{r plot_arrange, echo=TRUE}
+
+small %>% 
+  na.omit() %>% 
+  arrange(parity) %>% 
+  head()
+
+small %>% 
+  na.omit() %>% 
+  arrange(parity) %>% 
+  ggplot(aes(x=parity, y=m.age)) +
+  geom_jitter()
+
+```
+
+```{r}
+
+small %>% 
+  na.omit() %>% 
+  arrange(parity) %>% 
+ggplot(aes(x = fct_reorder(parity, m.age), y = m.age)) +
+  geom_jitter()
+
+```
+
+<a href="#top">Back to top</a>
+
+## Write (and read) `small` df to file
+
+```{r write_csv, echo=TRUE}
+
+# write to file
+write.csv(small,"/Users/kaitlynharper/Google Drive/UBC/Fall 2017/STAT 545/STAT545-hw-harper-kaitlyn/hw05/data/stunted_small.csv")
+
+rm(small)
+
+small.1 = read.csv("/Users/kaitlynharper/Google Drive/UBC/Fall 2017/STAT 545/STAT545-hw-harper-kaitlyn/hw05/data/stunted_small.csv", header=T)
+
+kable(head(small.1))
+
+```
+
+
+```{r read_csv2, echo = TRUE}
+
+small.2 = read.csv("/Users/kaitlynharper/Google Drive/UBC/Fall 2017/STAT 545/STAT545-hw-harper-kaitlyn/hw05/data/stunted_small.csv", header=T, row.names = 1)
+
+kable(head(small.2))
+
+rm(small.1)
+
+```
+
+<a href="#top">Back to top</a>
+
+## Visualization design
+
+```{r}
+
+### function to plot random samples
+
+ make_random_samples = function(df) {
+  
+  ### plot 16 random individuals
+  IDsample = df[sample(nrow(df), 16), 1]
+  
+  # Create small data set with only the 16 IDsamples
+  random_sample = 
+    df %>% 
+    filter(idno %in% IDsample)
+ }
+
+
+```
+
+```{r}
+
+  my_colors = c("darkmagenta", "forestgreen") #define colours to be used in the plot  
+
+  random_recovered = make_random_samples(stunted %>% filter(parity=="primi"))
+  
+  (primi = random_recovered %>% 
+    filter(!is.na(zlen)) %>% 
+    ggplot(aes(age, zlen, color = factor(sex, labels = c("Female", "Male")))) +
+    geom_point(na.rm=T) +
+    geom_line(na.rm=T) +
+    geom_hline(yintercept=-2, linetype="dashed", color="darkgrey", size = 1) +
+    facet_wrap(~idno) + 
+    labs(x = "Age (months)", y = "Height-for-age z-score (HAZ)", 
+         title = "Growth of firstborn infants in first 12-24 months") +
+    scale_colour_manual(values = my_colors, name = "Sex"))
+  
+  
+```
+
+## Writing figures to file
+
+```{r write2file, echo=TRUE}
+
+  (parity.bar = stunted %>% 
+      group_by(idno) %>% 
+      slice(1) %>% 
+      na.omit() %>% 
+      ggplot(aes(x = factor(sex, labels = c("Female", "Male")), fill = parity)) +
+      geom_bar() + 
+  labs(x = "Sex", title = "Number of individuals born with siblings, by sex"))
+    
+
+ggsave("/Users/kaitlynharper/Google Drive/UBC/Fall 2017/STAT 545/STAT545-hw-harper-kaitlyn/hw05/paritybar.pdf", plot = parity.bar,
+       width = 5, height = 5)
+
+ggsave("/Users/kaitlynharper/Google Drive/UBC/Fall 2017/STAT 545/STAT545-hw-harper-kaitlyn/hw05/paritybar2.pdf", plot = parity.bar)
+
+```
+
+![See plot1 here!](/Users/kaitlynharper/Google Drive/UBC/Fall 2017/STAT 545/STAT545-hw-harper-kaitlyn/hw05/paritybar2.pdf)
+
+![See plot2 here!](/Users/kaitlynharper/Google Drive/UBC/Fall 2017/STAT 545/STAT545-hw-harper-kaitlyn/hw05/paritybar.pdf)
+
+
