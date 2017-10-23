@@ -362,9 +362,9 @@ ggsave("/Users/kaitlynharper/Google Drive/UBC/Fall 2017/STAT 545/STAT545-hw-harp
 
 ```
 
-![See plot1 here!](/Users/kaitlynharper/Google Drive/UBC/Fall 2017/STAT 545/STAT545-hw-harper-kaitlyn/hw05/hw05_files/figure-markdown_github-ascii_identifiers/paritybar.pdf)
+![See plot1 here!](/https://github.com/oktokat/STAT545-hw-harper-kaitlyn/blob/master/hw05/hw05_files/figure-markdown_github-ascii_identifiers/paritybar.pdf
 
-![See plot2 here!](/Users/kaitlynharper/Google Drive/UBC/Fall 2017/STAT 545/STAT545-hw-harper-kaitlyn/hw05/hw05_files/figure-markdown_github-ascii_identifiers/paritybar2.pdf)
+![See plot2 here!](/https://github.com/oktokat/STAT545-hw-harper-kaitlyn/blob/master/hw05/hw05_files/figure-markdown_github-ascii_identifiers/paritybar2.pdf
 
 I experimented with changing the size of the plot, and it seems like the smaller your dimensions, the bigger everything shows up, which is good to know. I'm not *exactly* sure this^ is how it was supposed to end up when we embedded them into our md, but it's kind of cool!
 
